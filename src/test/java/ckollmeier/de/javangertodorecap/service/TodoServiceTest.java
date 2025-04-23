@@ -193,4 +193,27 @@ class TodoServiceTest {
         assertThrows(NullPointerException.class, () -> todoService.updateTodo(id, todoInputDTO));
     }
 
+    @Test
+    void deleteTodo_shouldDeleteTodo() {
+        // Given
+        String id = UUID.randomUUID().toString();
+        Mockito.when(todoRepository.existsById(id)).thenReturn(true);
+
+        // When
+        todoService.deleteTodo(id);
+
+        // Then
+        Mockito.verify(todoRepository, Mockito.times(1)).existsById(id);
+        Mockito.verify(todoRepository, Mockito.times(1)).deleteById(id);
+    }
+
+    @Test
+    void deleteTodo_shouldThrowExceptionForNonExistingTodo() {
+        // Given
+        String id = UUID.randomUUID().toString();
+        Mockito.when(todoRepository.existsById(id)).thenReturn(false);
+
+        // When & Then
+        assertThrows(NotFoundException.class, () -> todoService.deleteTodo(id));
+    }
 }

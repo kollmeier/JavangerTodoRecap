@@ -69,4 +69,15 @@ public class TodoService {
         Todo todo = todoRepository.findById(id).orElseThrow(() -> new NotFoundException("Todo not found"));
         return TodoDTOConverter.convert(todo);
     }
+
+    /**
+     * Löscht ein Todo anhand seiner Id aus dem Repository.
+     * @param id Id des zu löschenden Todos
+     */
+    public void deleteTodo(final @NonNull String id) {
+        if (!todoRepository.existsById(id)) {
+            throw new NotFoundException("Todo not found");
+        }
+        todoRepository.deleteById(id);
+    }
 }
