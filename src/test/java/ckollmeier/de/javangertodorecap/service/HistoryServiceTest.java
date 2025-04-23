@@ -89,8 +89,10 @@ class HistoryServiceTest {
             historyService.addEntry(action, entity, testTodoId, payload, previousPayload);
 
             // Then
-            // berprüfen, ob historyEntryRepository.save genau einmal aufgerufen wurde
+            // überprüfen, ob historyEntryRepository.save genau einmal aufgerufen wurde
             verify(historyEntryRepository, times(1)).save(historyEntryCaptor.capture());
+            // überprüfen, dass offene Redo-Schritte gelöscht werden
+            verify(historyEntryRepository, times(1)).deleteAllByUndoneAtIsNotNull();
 
             // Überprüfen der erfassten HistoryEntry-Daten
             HistoryEntry<?> capturedEntry = historyEntryCaptor.getValue();

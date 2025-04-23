@@ -55,166 +55,281 @@ class TodoControllerTest {
         historyEntryRepository.deleteAll();
     }
 
-    @Test
-    void getAllTodos_shouldReturnTodosAsJsonWithCorrectDTOs() throws Exception {
-        // Given
-        Todo todo1 = new Todo("id-1", Status.OPEN, "Test Todo 1");
-        Todo todo2 = new Todo("id-2", Status.OPEN, "Test Todo 2");
-        Todo todo3 = new Todo("id-3", Status.OPEN, "Test Todo 3");
+    @Nested
+    @DisplayName("GET /api/todo Tests")
+    class getALlTodosTest {
+        @Test
+        @DisplayName("sollte eine Liste von Todos zurückgeben")
+        void getAllTodos_shouldReturnTodosAsJsonWithCorrectDTOs() throws Exception {
+            // Given
+            Todo todo1 = new Todo("id-1", Status.OPEN, "Test Todo 1");
+            Todo todo2 = new Todo("id-2", Status.OPEN, "Test Todo 2");
+            Todo todo3 = new Todo("id-3", Status.OPEN, "Test Todo 3");
 
-        todoRepository.save(todo1);
-        todoRepository.save(todo2);
-        todoRepository.save(todo3);
+            todoRepository.save(todo1);
+            todoRepository.save(todo2);
+            todoRepository.save(todo3);
 
-        // When / Then
-        mockMvc.perform(get("/api/todo"))
-                .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        [
-                            {
-                                "id": "id-1",
-                                "status": "OPEN",
-                                "description": "Test Todo 1"
-                            },
-                            {
-                                "id": "id-2",
-                                "status": "OPEN",
-                                "description": "Test Todo 2"
-                            },
-                            {
-                                "id": "id-3",
-                                "status": "OPEN",
-                                "description": "Test Todo 3"
-                            }
-                        ]
-                """));
+            // When / Then
+            mockMvc.perform(get("/api/todo"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("""
+                                    [
+                                        {
+                                            "id": "id-1",
+                                            "status": "OPEN",
+                                            "description": "Test Todo 1"
+                                        },
+                                        {
+                                            "id": "id-2",
+                                            "status": "OPEN",
+                                            "description": "Test Todo 2"
+                                        },
+                                        {
+                                            "id": "id-3",
+                                            "status": "OPEN",
+                                            "description": "Test Todo 3"
+                                        }
+                                    ]
+                            """));
+        }
+
+        @Test
+        @DisplayName("sollte eine leere Liste zurückgeben, wenn keine Todos vorhanden sind")
+        void getAllTodos_shouldReturnEmptyListForNoTodos() throws Exception {
+            // When / Then
+            mockMvc.perform(get("/api/todo"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("[]"));
+        }
     }
 
-    @Test
-    void getAllTodos_shouldReturnEmptyListForNoTodos() throws Exception{
-        // When / Then
-        mockMvc.perform(get("/api/todo"))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
+    @Nested
+    @DisplayName("POST /api/todo Tests")
+    class addTodoTest {
+        @Test
+        @DisplayName("sollte ein neues Todo erstellen und als DTO zurückgeben")
+        void addTodo_shouldAddTodoAndReturnDTO() throws Exception {
+            // Given
+            TodoInputDTO todoInputDTO = new TodoInputDTO("OPEN", "Test Todo");
+            ObjectWriter objectWriter = new ObjectMapper().writer();
+            JsonObject jsonTodoInputDTO = new JsonObject(objectWriter.writeValueAsString(todoInputDTO));
+
+            // When / Then
+            mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO.getJson()))
+                    .andExpect(status().isCreated())
+                    .andExpect(content().json("""
+                                {
+                                    "status": "OPEN",
+                                    "description": "Test Todo"
+                                }
+                            """))
+                    .andExpect(jsonPath("$.id").isNotEmpty());
+            List<Todo> savedTodos = todoRepository.findAll();
+            assertEquals(1, savedTodos.size());
+            Todo savedTodo = savedTodos.getFirst();
+            assertEquals(todoInputDTO.status(), savedTodo.status().toString());
+            assertEquals(todoInputDTO.description(), savedTodo.description());
+        }
+
+        @Test
+        @DisplayName("sollte offene Redo-Schritte löschen, wenn ein neues Todo erstellt wird")
+        void addTodo_shouldRemoveRedoHistory() throws Exception {
+            // Given
+            ObjectWriter objectWriter = new ObjectMapper().writer();
+
+            TodoInputDTO todoInputDTO1 = new TodoInputDTO("OPEN", "Test Todo 1");
+            JsonObject jsonTodoInputDTO1 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO1));
+            TodoInputDTO todoInputDTO2 = new TodoInputDTO("IN_PROGRESS", "Test Todo 2");
+            JsonObject jsonTodoInputDTO2 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO2));
+            TodoInputDTO todoInputDTO3 = new TodoInputDTO("DONE", "Test Todo 3");
+            JsonObject jsonTodoInputDTO3 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO3));
+
+            // When
+            mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO1.getJson()));
+            mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO2.getJson()));
+            assertEquals(2, historyEntryRepository.countByUndoneAtIsNull()); //  Zwei Undo-Schritte
+            mockMvc.perform(post("/api/todo/undo").contentType("application/json").content(jsonTodoInputDTO1.getJson()));
+            mockMvc.perform(post("/api/todo/undo").contentType("application/json").content(jsonTodoInputDTO2.getJson()));
+            assertEquals(0, historyEntryRepository.countByUndoneAtIsNull()); // Keine Undo-Schritte mehr
+            assertEquals(2, historyEntryRepository.countByUndoneAtIsNotNull()); // Zwei Redo-Schritte
+            mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO3.getJson()));
+
+            // Then
+            assertEquals(1, historyEntryRepository.countByUndoneAtIsNull()); // Ein Undo Schritt
+            assertEquals(0, historyEntryRepository.countByUndoneAtIsNotNull()); // Keine Redo-Schritte mehr
+        }
     }
 
-    @Test
-    void addTodo_shouldAddTodoAndReturnDTO() throws Exception {
-        // Given
-        TodoInputDTO todoInputDTO = new TodoInputDTO("OPEN", "Test Todo");
-        ObjectWriter objectWriter = new ObjectMapper().writer();
-        JsonObject jsonTodoInputDTO = new JsonObject(objectWriter.writeValueAsString(todoInputDTO));
+    @Nested
+    @DisplayName("GET /api/todo/{id} Tests")
+    class getTodoByIdTest {
+        @Test
+        @DisplayName("sollte ein vorhandenes Todo als DTO zurückgeben")
+        void getTodoById_shouldReturnExistingTodoAsDTO() throws Exception {
+            // Given
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            todoRepository.save(todo);
 
-        // When / Then
-        mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO.getJson()))
-                .andExpect(status().isCreated())
-                .andExpect(content().json("""
-                            {
-                                "status": "OPEN",
-                                "description": "Test Todo"
-                            }
-                        """))
-                .andExpect(jsonPath("$.id").isNotEmpty());
-        List<Todo> savedTodos = todoRepository.findAll();
-        assertEquals(1, savedTodos.size());
-        Todo savedTodo = savedTodos.getFirst();
-        assertEquals(todoInputDTO.status(), savedTodo.status().toString());
-        assertEquals(todoInputDTO.description(), savedTodo.description());
+            // When / Then
+            mockMvc.perform(get("/api/todo/id-1"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("""
+                                {
+                                    "id": "id-1",
+                                    "status": "OPEN",
+                                    "description": "Test Todo"
+                                }
+                            """));
+        }
+
+        @Test
+        @DisplayName("sollte 404 zurückgeben, wenn ein nicht vorhandenes Todo angefordert wird")
+        void getTodoById_shouldReturn404ForNonExistingTodo() throws Exception {
+            // Given
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            todoRepository.save(todo);
+
+            // When / Then
+            mockMvc.perform(get("/api/todo/non-existing-id"))
+                    .andExpect(status().isNotFound());
+        }
     }
 
-    @Test
-    void getTodoById_shouldReturnExistingTodoAsDTO() throws Exception {
-        // Given
-        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
-        todoRepository.save(todo);
+    @Nested
+    @DisplayName("PUT /api/todo/{id} Tests")
+    class updateTodoTest {
+        @Test
+        @DisplayName("sollte ein vorhandenes Todo aktualisieren und als DTO zurückgeben")
+        void updateTodo_shouldUpdateTodoAndReturnDTO() throws Exception {
+            // Given
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            todoRepository.save(todo);
 
-        // When / Then
-        mockMvc.perform(get("/api/todo/id-1"))
-                .andExpect(status().isOk())
-                .andExpect(content().json("""
-                        {
-                            "id": "id-1",
-                            "status": "OPEN",
-                            "description": "Test Todo"
-                        }
-                    """));
-    }
+            TodoInputDTO todoInputDTO = new TodoInputDTO("IN_PROGRESS", "Updated Test Todo");
+            ObjectWriter objectWriter = new ObjectMapper().writer();
+            JsonObject jsonTodoInputDTO = new JsonObject(objectWriter.writeValueAsString(todoInputDTO));
 
-    @Test
-    void getTodoById_shouldReturn404ForNonExistingTodo() throws Exception {
-        // Given
-        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
-        todoRepository.save(todo);
-
-        // When / Then
-        mockMvc.perform(get("/api/todo/non-existing-id"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void updateTodo_shouldUpdateTodoAndReturnDTO() throws Exception {
-        // Given
-        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
-        todoRepository.save(todo);
-
-        TodoInputDTO todoInputDTO = new TodoInputDTO("IN_PROGRESS", "Updated Test Todo");
-        ObjectWriter objectWriter = new ObjectMapper().writer();
-        JsonObject jsonTodoInputDTO = new JsonObject(objectWriter.writeValueAsString(todoInputDTO));
-
-        // When / Then
-        mockMvc.perform(put("/api/todo/id-1").contentType("application/json").content(jsonTodoInputDTO.getJson()))
-                .andExpect(status().isOk())
-                .andExpect(content().json("""
+            // When / Then
+            mockMvc.perform(put("/api/todo/id-1").contentType("application/json").content(jsonTodoInputDTO.getJson()))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("""
                         {
                             "id": "id-1",
                             "status": "IN_PROGRESS",
                             "description": "Updated Test Todo"
                         }
                     """));
-        List<Todo> savedTodos = todoRepository.findAll();
-        assertEquals(1, savedTodos.size());
-        Todo savedTodo = savedTodos.getFirst();
-        assertEquals(todoInputDTO.status(), savedTodo.status().toString());
-        assertEquals(todoInputDTO.description(), savedTodo.description());
+            List<Todo> savedTodos = todoRepository.findAll();
+            assertEquals(1, savedTodos.size());
+            Todo savedTodo = savedTodos.getFirst();
+            assertEquals(todoInputDTO.status(), savedTodo.status().toString());
+            assertEquals(todoInputDTO.description(), savedTodo.description());
+        }
+
+        @Test
+        @DisplayName("sollte 404 zurückgeben, wenn ein nicht vorhandenes Todo aktualisiert wird")
+        void updateTodo_shouldReturn404ForNonExistingTodo() throws Exception {
+            // Given
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            todoRepository.save(todo);
+
+            TodoInputDTO todoInputDTO = new TodoInputDTO("IN_PROGRESS", "Updated Test Todo");
+            ObjectWriter objectWriter = new ObjectMapper().writer();
+            JsonObject jsonTodoInputDTO = new JsonObject(objectWriter.writeValueAsString(todoInputDTO));
+
+            // When / Then
+            mockMvc.perform(put("/api/todo/non-existing-id").contentType("application/json").content(jsonTodoInputDTO.getJson()))
+                    .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("sollte offene Redo-Schritte löschen, wenn ein Todo geändert wird")
+        void updateTodo_shouldRemoveRedoHistory() throws Exception {
+            // Given
+            ObjectWriter objectWriter = new ObjectMapper().writer();
+
+            TodoInputDTO todoInputDTO1 = new TodoInputDTO("OPEN", "Test Todo 1");
+            JsonObject jsonTodoInputDTO1 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO1));
+            TodoInputDTO todoInputDTO2 = new TodoInputDTO("IN_PROGRESS", "Test Todo 2");
+            JsonObject jsonTodoInputDTO2 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO2));
+            TodoInputDTO todoInputDTO3 = new TodoInputDTO("DONE", "Test Todo 3");
+            JsonObject jsonTodoInputDTO3 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO3));
+
+            // When
+            MvcResult createResult1 = mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO1.getJson())).andReturn();
+            String createdId1 = objectMapper.readTree(createResult1.getResponse().getContentAsString()).get("id").asText();
+
+            mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO2.getJson()));
+
+            assertEquals(2, historyEntryRepository.countByUndoneAtIsNull()); //  Zwei Undo-Schritte
+            mockMvc.perform(post("/api/todo/undo").contentType("application/json").content(jsonTodoInputDTO1.getJson()));
+            assertEquals(1, historyEntryRepository.countByUndoneAtIsNull()); // Ein Undo-Schritte übrig
+            assertEquals(1, historyEntryRepository.countByUndoneAtIsNotNull()); // Ein Redo-Schritt
+            mockMvc.perform(put("/api/todo/" +  createdId1).contentType("application/json").content(jsonTodoInputDTO3.getJson()));
+
+            // Then
+            assertEquals(2, historyEntryRepository.countByUndoneAtIsNull()); // Zwei Undo Schritte wieder
+            assertEquals(0, historyEntryRepository.countByUndoneAtIsNotNull()); // Keine Redo-Schritte mehr
+        }
     }
 
-    @Test
-    void updateTodo_shouldReturn404ForNonExistingTodo() throws Exception {
-        // Given
-        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
-        todoRepository.save(todo);
+    @Nested
+    @DisplayName("DELETE /api/todo/{id} Tests")
+    class deleteTodoTest {
+        @Test
+        void deleteTodo() throws Exception {
+            // Given
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            todoRepository.save(todo);
 
-        TodoInputDTO todoInputDTO = new TodoInputDTO("IN_PROGRESS", "Updated Test Todo");
-        ObjectWriter objectWriter = new ObjectMapper().writer();
-        JsonObject jsonTodoInputDTO = new JsonObject(objectWriter.writeValueAsString(todoInputDTO));
+            // When / Then
+            mockMvc.perform(delete("/api/todo/id-1"))
+                    .andExpect(status().isNoContent());
+            List<Todo> savedTodos = todoRepository.findAll();
+            assertEquals(0, savedTodos.size());
+        }
 
-        // When / Then
-        mockMvc.perform(put("/api/todo/non-existing-id").contentType("application/json").content(jsonTodoInputDTO.getJson()))
-                .andExpect(status().isNotFound());
-    }
+        @Test
+        void deleteTodo_shouldReturn404ForNonExistingTodo() throws Exception {
+            // Given
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            todoRepository.save(todo);
 
-    @Test
-    void deleteTodo() throws Exception {
-        // Given
-        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
-        todoRepository.save(todo);
+            // When / Then
+            mockMvc.perform(delete("/api/todo/non-existing-id"))
+                    .andExpect(status().isNotFound());
+        }
 
-        // When / Then
-        mockMvc.perform(delete("/api/todo/id-1"))
-                .andExpect(status().isNoContent());
-        List<Todo> savedTodos = todoRepository.findAll();
-        assertEquals(0, savedTodos.size());
-    }
+        @Test
+        @DisplayName("sollte offene Redo-Schritte löschen, wenn ein Todo gelöscht wird")
+        void deleteTodo_shouldRemoveRedoHistory() throws Exception {
+            // Given
+            ObjectWriter objectWriter = new ObjectMapper().writer();
 
-    @Test
-    void deleteTodo_shouldReturn404ForNonExistingTodo() throws Exception {
-        // Given
-        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
-        todoRepository.save(todo);
+            TodoInputDTO todoInputDTO1 = new TodoInputDTO("OPEN", "Test Todo 1");
+            JsonObject jsonTodoInputDTO1 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO1));
+            TodoInputDTO todoInputDTO2 = new TodoInputDTO("IN_PROGRESS", "Test Todo 2");
+            JsonObject jsonTodoInputDTO2 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO2));
+            TodoInputDTO todoInputDTO3 = new TodoInputDTO("DONE", "Test Todo 3");
+            JsonObject jsonTodoInputDTO3 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO3));
 
-        // When / Then
-        mockMvc.perform(delete("/api/todo/non-existing-id"))
-                .andExpect(status().isNotFound());
+            // When
+            MvcResult createResult1 = mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO1.getJson())).andReturn();
+            String createdId1 = objectMapper.readTree(createResult1.getResponse().getContentAsString()).get("id").asText();
+
+            mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO2.getJson()));
+
+            assertEquals(2, historyEntryRepository.countByUndoneAtIsNull()); //  Zwei Undo-Schritte
+            mockMvc.perform(post("/api/todo/undo").contentType("application/json").content(jsonTodoInputDTO2.getJson()));
+            assertEquals(1, historyEntryRepository.countByUndoneAtIsNull()); // Ein Undo-Schritte übrig
+            assertEquals(1, historyEntryRepository.countByUndoneAtIsNotNull()); // ein Redo-Schritt
+            mockMvc.perform(delete("/api/todo/" + createdId1).contentType("application/json").content(jsonTodoInputDTO3.getJson()));
+
+            // Then
+            assertEquals(2, historyEntryRepository.countByUndoneAtIsNull()); // Zwei Undo Schritte wieder
+            assertEquals(0, historyEntryRepository.countByUndoneAtIsNotNull()); // Keine Redo-Schritte mehr
+        }
     }
 
     // --- Tests für Undo ---
@@ -423,7 +538,7 @@ class TodoControllerTest {
             assertThat(todoRepository.count()).isZero();
             Assertions.assertThat(historyEntryRepository.count()).isZero();
 
-            // When: Undo aufrufen
+            // When: Redo aufrufen
             mockMvc.perform(post("/api/todo/redo"))
                     .andExpect(status().isNoContent());
 

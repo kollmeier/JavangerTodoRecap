@@ -58,6 +58,7 @@ public class HistoryService {
                 Instant.now(),
                 null
         );
+        historyEntryRepository.deleteAllByUndoneAtIsNotNull(); // empty redo history
         historyEntryRepository.save(entry);
     }
 
