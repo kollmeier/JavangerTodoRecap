@@ -17,10 +17,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -172,6 +175,30 @@ class TodoControllerTest {
 
         // When / Then
         mockMvc.perform(put("/api/todo/non-existing-id").contentType("application/json").content(jsonTodoInputDTO.getJson()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteTodo() throws Exception {
+        // Given
+        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+        todoRepository.save(todo);
+
+        // When / Then
+        mockMvc.perform(delete("/api/todo/id-1"))
+                .andExpect(status().isOk());
+        List<Todo> savedTodos = todoRepository.findAll();
+        assertEquals(0, savedTodos.size());
+    }
+
+    @Test
+    void deleteTodo_shouldReturn404ForNonExistingTodo() throws Exception {
+        // Given
+        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+        todoRepository.save(todo);
+
+        // When / Then
+        mockMvc.perform(delete("/api/todo/non-existing-id"))
                 .andExpect(status().isNotFound());
     }
 }

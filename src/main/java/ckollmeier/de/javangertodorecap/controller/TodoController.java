@@ -4,13 +4,7 @@ import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
 import ckollmeier.de.javangertodorecap.service.TodoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -64,5 +58,14 @@ public class TodoController {
     @PutMapping("/{id}")
     public TodoDTO updateTodo(final @PathVariable String id, final @RequestBody TodoInputDTO todoInputDTO) {
         return todoService.updateTodo(id, todoInputDTO);
+    }
+
+    /**
+     * Löscht ein Todo anhand seiner Id aus dem Repository.
+     * @param id Id des zu löschenden Todos
+     */
+    @DeleteMapping("{id}")
+    public void deleteTodo(final @PathVariable String id) {
+        todoService.deleteTodo(id);
     }
 }
