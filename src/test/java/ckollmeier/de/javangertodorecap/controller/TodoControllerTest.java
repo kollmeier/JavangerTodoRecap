@@ -96,4 +96,33 @@ class TodoControllerTest {
         assertEquals(todoInputDTO.status(), savedTodo.status().toString());
         assertEquals(todoInputDTO.description(), savedTodo.description());
     }
+
+    @Test
+    void getTodoById_shouldReturnExistingTodoAsDTO() throws Exception {
+        // Given
+        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+        todoRepository.save(todo);
+
+        // When / Then
+        mockMvc.perform(get("/api/todo/id-1"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
+                        {
+                            "id": "id-1",
+                            "status": "OPEN",
+                            "description": "Test Todo"
+                        }
+                    """));
+    }
+
+    @Test
+    void getTodoById_shouldReturn404ForNonExistingTodo() throws Exception {
+        // Given
+        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+        todoRepository.save(todo);
+
+        // When / Then
+        mockMvc.perform(get("/api/todo/non-existing-id"))
+                .andExpect(status().isNotFound());
+    }
 }

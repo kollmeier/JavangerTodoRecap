@@ -4,11 +4,7 @@ import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
 import ckollmeier.de.javangertodorecap.service.TodoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,6 +27,16 @@ public class TodoController {
     @GetMapping
     public List<TodoDTO> getAllTodos() {
         return todoService.getAllTodos();
+    }
+
+    /**
+     * Holt ein Todo anhand seiner Id aus dem Service und gibt es als @{link TodoDTO} zurück.
+     * @param id Id des zu suchenden Todos
+     * @return Todo als @{link TodoDTO}
+     */
+    @GetMapping("/{id}")
+    public TodoDTO getTodoById(final @PathVariable String id) {
+        return todoService.getTodoById(id);
     }
 
     /**
