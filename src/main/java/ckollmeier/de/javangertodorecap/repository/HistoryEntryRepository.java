@@ -11,4 +11,7 @@ public interface HistoryEntryRepository extends MongoRepository<HistoryEntry<?>,
     Optional<HistoryEntry<?>> findFirstByUndoneAtIsNullOrderByDoneAtDesc();
     Optional<HistoryEntry<?>> findFirstByUndoneAtIsNotNullOrderByDoneAtAsc();
     Optional<HistoryEntry<?>> findFirstByEntityIdOrderByDoneAtDesc(String entityId);
+    long countByUndoneAtIsNotNull();
+    long countByUndoneAtIsNull();
+    int deleteAllByUndoneAtIsNotNull();
 }
