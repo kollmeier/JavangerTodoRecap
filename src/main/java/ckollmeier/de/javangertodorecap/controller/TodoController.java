@@ -4,6 +4,8 @@ import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
 import ckollmeier.de.javangertodorecap.service.TodoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,8 +54,8 @@ public class TodoController {
      * @return erstelltes Todo als @{link TodoDTO}
      */
     @PostMapping
-    public TodoDTO addTodo(final @RequestBody TodoInputDTO todoInputDTO) {
-        return todoService.addTodo(todoInputDTO);
+    public ResponseEntity<TodoDTO> addTodo(final @RequestBody TodoInputDTO todoInputDTO) {
+        return new ResponseEntity<>(todoService.addTodo(todoInputDTO), HttpStatus.CREATED);
     }
 
     /**

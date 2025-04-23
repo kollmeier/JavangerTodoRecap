@@ -92,7 +92,7 @@ class TodoControllerTest {
 
         // When / Then
         mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO.getJson()))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().json("""
                             {
                                 "status": "OPEN",
