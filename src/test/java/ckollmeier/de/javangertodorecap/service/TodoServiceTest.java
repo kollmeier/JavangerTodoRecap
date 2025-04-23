@@ -4,6 +4,7 @@ import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
 import ckollmeier.de.javangertodorecap.entity.Todo;
 import ckollmeier.de.javangertodorecap.enums.Status;
+import ckollmeier.de.javangertodorecap.exception.NotFoundException;
 import ckollmeier.de.javangertodorecap.repository.TodoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -99,5 +101,37 @@ class TodoServiceTest {
 
         // When & Then
         assertThrows(NullPointerException.class, () -> todoService.addTodo(todoInputDTO));
+    }
+
+    @Test
+    void getTodoById_shouldReturnExistingTodoAsDTO() {
+        // Given
+        String id = UUID.randomUUID().toString();
+        String statusString = "OPEN";
+        String description = "Test Todo";
+
+        Todo todo = new Todo(id, Status.valueOf(statusString), description);
+        TodoDTO expectedDTO = new TodoDTO(id, statusString, description);
+        Mockito.when(todoRepository.findById(id)).thenReturn(java.util.Optional.of(todo));
+
+        // When
+        TodoDTO actualDTO = todoService.getTodoById(id);
+
+        // Then
+        assertEquals(expectedDTO.id(), actualDTO.id());
+        assertEquals(expectedDTO.status(), actualDTO.status());
+        assertEquals(expectedDTO.description(), actualDTO.description());
+
+        Mockito.verify(todoRepository, Mockito.times(1)).findById(id);
+    }
+
+    @Test
+    void getTodoById_shouldThrowExceptionForNonExistingTodo() {
+        // Given
+        String id = UUID.randomUUID().toString();
+        Mockito.when(todoRepository.findById(id)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(NotFoundException.class, () -> todoService.getTodoById(id));
     }
 }

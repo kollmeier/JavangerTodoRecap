@@ -5,6 +5,7 @@ import ckollmeier.de.javangertodorecap.converter.TodoDTOConverter;
 import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
 import ckollmeier.de.javangertodorecap.entity.Todo;
+import ckollmeier.de.javangertodorecap.exception.NotFoundException;
 import ckollmeier.de.javangertodorecap.generator.IDGenerator;
 import ckollmeier.de.javangertodorecap.repository.TodoRepository;
 import lombok.NonNull;
@@ -40,6 +41,16 @@ public class TodoService {
     public TodoDTO addTodo(final @NonNull TodoInputDTO todoInputDTO) {
         Todo todo = TodoConverter.convert(todoInputDTO).withId(IDGenerator.generateID());
         todoRepository.save(todo);
+        return TodoDTOConverter.convert(todo);
+    }
+
+    /**
+     * Holt ein Todo anhand seiner Id aus dem Repository und gibt es als @{link TodoDTO} zurück.
+     * @param id Id des zu suchenden Todos
+     * @return Todo als @{link TodoDTO}
+     */
+    public TodoDTO getTodoById(final @NonNull String id) {
+        Todo todo = todoRepository.findById(id).orElseThrow(() -> new NotFoundException("Todo not found"));
         return TodoDTOConverter.convert(todo);
     }
 }
