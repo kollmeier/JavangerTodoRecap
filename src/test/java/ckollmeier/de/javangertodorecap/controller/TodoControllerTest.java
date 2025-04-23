@@ -7,6 +7,7 @@ import ckollmeier.de.javangertodorecap.repository.TodoRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.bson.json.JsonObject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -29,6 +31,11 @@ class TodoControllerTest {
 
     @Autowired
     private TodoRepository todoRepository;
+
+    @BeforeEach
+    void setUp() {
+        todoRepository.deleteAll();
+    }
 
     @Test
     void getAllTodos_shouldReturnTodosAsJsonWithCorrectDTOs() throws Exception {
@@ -123,6 +130,48 @@ class TodoControllerTest {
 
         // When / Then
         mockMvc.perform(get("/api/todo/non-existing-id"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateTodo_shouldUpdateTodoAndReturnDTO() throws Exception {
+        // Given
+        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+        todoRepository.save(todo);
+
+        TodoInputDTO todoInputDTO = new TodoInputDTO("IN_PROGRESS", "Updated Test Todo");
+        ObjectWriter objectWriter = new ObjectMapper().writer();
+        JsonObject jsonTodoInputDTO = new JsonObject(objectWriter.writeValueAsString(todoInputDTO));
+
+        // When / Then
+        mockMvc.perform(put("/api/todo/id-1").contentType("application/json").content(jsonTodoInputDTO.getJson()))
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
+                        {
+                            "id": "id-1",
+                            "status": "IN_PROGRESS",
+                            "description": "Updated Test Todo"
+                        }
+                    """));
+        List<Todo> savedTodos = todoRepository.findAll();
+        assertEquals(1, savedTodos.size());
+        Todo savedTodo = savedTodos.getFirst();
+        assertEquals(todoInputDTO.status(), savedTodo.status().toString());
+        assertEquals(todoInputDTO.description(), savedTodo.description());
+    }
+
+    @Test
+    void updateTodo_shouldReturn404ForNonExistingTodo() throws Exception {
+        // Given
+        Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+        todoRepository.save(todo);
+
+        TodoInputDTO todoInputDTO = new TodoInputDTO("IN_PROGRESS", "Updated Test Todo");
+        ObjectWriter objectWriter = new ObjectMapper().writer();
+        JsonObject jsonTodoInputDTO = new JsonObject(objectWriter.writeValueAsString(todoInputDTO));
+
+        // When / Then
+        mockMvc.perform(put("/api/todo/non-existing-id").contentType("application/json").content(jsonTodoInputDTO.getJson()))
                 .andExpect(status().isNotFound());
     }
 }

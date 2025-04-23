@@ -48,4 +48,15 @@ public class TodoController {
     public TodoDTO addTodo(final @RequestBody TodoInputDTO todoInputDTO) {
         return todoService.addTodo(todoInputDTO);
     }
+
+    /**
+     * Ändert ein Todo anhand seiner Id im Repository.
+     * @param id Id des zu ändernden Todos
+     * @param todoInputDTO zu ändernde Daten
+     * @return geändertes Todo als @{link TodoDTO}
+     */
+    @PutMapping("/{id}")
+    public TodoDTO updateTodo(final @PathVariable String id, final @RequestBody TodoInputDTO todoInputDTO) {
+        return todoService.updateTodo(id, todoInputDTO);
+    }
 }
