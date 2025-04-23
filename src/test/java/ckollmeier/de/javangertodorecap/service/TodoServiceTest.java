@@ -134,4 +134,63 @@ class TodoServiceTest {
         // When & Then
         assertThrows(NotFoundException.class, () -> todoService.getTodoById(id));
     }
+
+    @Test
+    void updateTodo_shouldUpdateTodoAndReturnDTO() {
+        // Given
+        String id = UUID.randomUUID().toString();
+        String statusString = "OPEN";
+        String description = "Test Todo";
+
+        TodoInputDTO todoInputDTO = new TodoInputDTO(statusString, description);
+        Todo todo = new Todo(id, Status.valueOf(statusString), description);
+        TodoDTO expectedDTO = new TodoDTO(id, statusString, description);
+        Mockito.when(todoRepository.existsById(id)).thenReturn(true);
+        Mockito.when(todoRepository.save(Mockito.any(Todo.class))).thenReturn(todo);
+
+        // When
+        TodoDTO actualDTO = todoService.updateTodo(id, todoInputDTO);
+
+        // Then
+        assertEquals(expectedDTO.id(), actualDTO.id());
+        assertEquals(expectedDTO.status(), actualDTO.status());
+        assertEquals(expectedDTO.description(), actualDTO.description());
+
+        Mockito.verify(todoRepository, Mockito.times(1)).existsById(id);
+        Mockito.verify(todoRepository, Mockito.times(1)).save(Mockito.any(Todo.class));
+    }
+
+    @Test
+    void updateTodo_shouldThrowExceptionForNonExistingTodo() {
+        // Given
+        String id = UUID.randomUUID().toString();
+        String statusString = "OPEN";
+        String description = "Test Todo";
+        TodoInputDTO todoInputDTO = new TodoInputDTO(statusString, description);
+        Mockito.when(todoRepository.existsById(id)).thenReturn(false);
+
+        // When & Then
+        assertThrows(NotFoundException.class, () -> todoService.updateTodo(id, todoInputDTO));
+    }
+
+    @Test
+    void updateTodo_shouldThrowExceptionForNullInput() {
+        // Given
+        String id = UUID.randomUUID().toString();
+        TodoInputDTO todoInputDTO = null;
+
+        // When & Then
+        assertThrows(NullPointerException.class, () -> todoService.updateTodo(id, todoInputDTO));
+    }
+
+    @Test
+    void updateTodo_shouldThrowExceptionForNullId() {
+        // Given
+        String id = null;
+        TodoInputDTO todoInputDTO = new TodoInputDTO("OPEN", "Test Todo");
+
+        // When & Then
+        assertThrows(NullPointerException.class, () -> todoService.updateTodo(id, todoInputDTO));
+    }
+
 }

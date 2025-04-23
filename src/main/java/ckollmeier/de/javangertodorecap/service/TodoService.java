@@ -45,6 +45,22 @@ public class TodoService {
     }
 
     /**
+     * Ändert ein Todo anhand seiner Id im Repository.
+     * @param id Id des zu ändernden Todos
+     * @param todoInputDTO zu ändernde Daten
+     * @return geändertes Todo als @{link TodoDTO}
+     */
+    public TodoDTO updateTodo(final @NonNull String id, final @NonNull TodoInputDTO todoInputDTO) {
+        if (!todoRepository.existsById(id)) {
+            throw new NotFoundException("Todo not found");
+        }
+
+        Todo todo = TodoConverter.convert(todoInputDTO).withId(id);
+        todoRepository.save(todo);
+        return TodoDTOConverter.convert(todo);
+    }
+
+    /**
      * Holt ein Todo anhand seiner Id aus dem Repository und gibt es als @{link TodoDTO} zurück.
      * @param id Id des zu suchenden Todos
      * @return Todo als @{link TodoDTO}
