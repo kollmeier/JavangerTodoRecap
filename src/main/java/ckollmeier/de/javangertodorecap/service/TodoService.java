@@ -5,6 +5,8 @@ import ckollmeier.de.javangertodorecap.converter.TodoDTOConverter;
 import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
 import ckollmeier.de.javangertodorecap.entity.Todo;
+import ckollmeier.de.javangertodorecap.enums.Action;
+import ckollmeier.de.javangertodorecap.enums.Entity;
 import ckollmeier.de.javangertodorecap.exception.NotFoundException;
 import ckollmeier.de.javangertodorecap.generator.IDGenerator;
 import ckollmeier.de.javangertodorecap.repository.TodoRepository;
@@ -26,6 +28,11 @@ public class TodoService {
     private final TodoRepository todoRepository;
 
     /**
+     * Service zur Verwaltung von History.
+     */
+    private final HistoryService historyService;
+
+    /**
      * Holt alle @{link Todo}s aus dem Repository und gibt sie als Liste von @{link TodoDTO}s zurück.
      * @return Liste von Todos als @{link TodoDTO}
      */
@@ -41,6 +48,7 @@ public class TodoService {
     public TodoDTO addTodo(final @NonNull TodoInputDTO todoInputDTO) {
         Todo todo = TodoConverter.convert(todoInputDTO).withId(IDGenerator.generateID());
         todoRepository.save(todo);
+        historyService.addEntry(Action.CREATE, Entity.TODO, todo.id(), todo, null);
         return TodoDTOConverter.convert(todo);
     }
 
@@ -51,12 +59,11 @@ public class TodoService {
      * @return geändertes Todo als @{link TodoDTO}
      */
     public TodoDTO updateTodo(final @NonNull String id, final @NonNull TodoInputDTO todoInputDTO) {
-        if (!todoRepository.existsById(id)) {
-            throw new NotFoundException("Todo not found");
-        }
+        Todo previousTodo = todoRepository.findById(id).orElseThrow(() -> new NotFoundException("Todo not found"));
 
         Todo todo = TodoConverter.convert(todoInputDTO).withId(id);
         todoRepository.save(todo);
+        historyService.addEntry(Action.UPDATE, Entity.TODO, todo.id(), todo, previousTodo);
         return TodoDTOConverter.convert(todo);
     }
 
@@ -75,9 +82,8 @@ public class TodoService {
      * @param id Id des zu löschenden Todos
      */
     public void deleteTodo(final @NonNull String id) {
-        if (!todoRepository.existsById(id)) {
-            throw new NotFoundException("Todo not found");
-        }
+        Todo previousTodo = todoRepository.findById(id).orElseThrow(() -> new NotFoundException("Todo not found"));
+        historyService.addEntry(Action.DELETE, Entity.TODO, previousTodo.id(), null, previousTodo);
         todoRepository.deleteById(id);
     }
 }

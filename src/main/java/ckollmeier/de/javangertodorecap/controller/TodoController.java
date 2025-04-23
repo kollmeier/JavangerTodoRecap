@@ -2,6 +2,7 @@ package ckollmeier.de.javangertodorecap.controller;
 
 import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
+import ckollmeier.de.javangertodorecap.service.HistoryService;
 import ckollmeier.de.javangertodorecap.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,10 @@ public class TodoController {
      * Service zur Verwaltung von Todos.
      */
     private final TodoService todoService;
+    /**
+     * Service zur Verwaltung der Historie.
+     */
+    private final HistoryService historyService;
 
     /**
      * Holt alle Todos aus dem Service und gibt sie als Liste von @{link TodoDTO}s zurück.
@@ -77,6 +82,26 @@ public class TodoController {
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteTodo(final @PathVariable String id) {
         todoService.deleteTodo(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    /**
+     * Macht die letzte Aktion rückgängig.
+     * @return Statuscode 204
+     */
+    @PostMapping("/undo")
+    public ResponseEntity<Void> undoLastEntry() {
+        historyService.undoLastEntry();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    /**
+     * Stellt die letzte rückgängig gemachte Aktion wieder her.
+     * @return Statuscode 204
+     */
+    @PostMapping("/redo")
+    public ResponseEntity<Void> redoLastEntry() {
+        historyService.redoLastEntry();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

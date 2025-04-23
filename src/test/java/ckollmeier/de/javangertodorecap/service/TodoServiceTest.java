@@ -25,9 +25,7 @@ class TodoServiceTest {
     @BeforeEach
     void setUp() {
         todoRepository = Mockito.mock(TodoRepository.class);
-        todoService = new TodoService(
-                todoRepository
-        );
+        todoService = new TodoService(todoRepository, Mockito.mock(HistoryService.class));
     }
 
     @Test
@@ -139,13 +137,16 @@ class TodoServiceTest {
     void updateTodo_shouldUpdateTodoAndReturnDTO() {
         // Given
         String id = UUID.randomUUID().toString();
+        String previousStatusString = "IN_PROGRESS";
+        String previousDescription = "Previous Todo";
         String statusString = "OPEN";
         String description = "Test Todo";
 
         TodoInputDTO todoInputDTO = new TodoInputDTO(statusString, description);
+        Todo previousTodo = new Todo(id, Status.valueOf(previousStatusString), previousDescription);
         Todo todo = new Todo(id, Status.valueOf(statusString), description);
         TodoDTO expectedDTO = new TodoDTO(id, statusString, description);
-        Mockito.when(todoRepository.existsById(id)).thenReturn(true);
+        Mockito.when(todoRepository.findById(id)).thenReturn(Optional.of(previousTodo));
         Mockito.when(todoRepository.save(Mockito.any(Todo.class))).thenReturn(todo);
 
         // When
@@ -156,7 +157,7 @@ class TodoServiceTest {
         assertEquals(expectedDTO.status(), actualDTO.status());
         assertEquals(expectedDTO.description(), actualDTO.description());
 
-        Mockito.verify(todoRepository, Mockito.times(1)).existsById(id);
+        Mockito.verify(todoRepository, Mockito.times(1)).findById(id);
         Mockito.verify(todoRepository, Mockito.times(1)).save(Mockito.any(Todo.class));
     }
 
@@ -197,13 +198,13 @@ class TodoServiceTest {
     void deleteTodo_shouldDeleteTodo() {
         // Given
         String id = UUID.randomUUID().toString();
-        Mockito.when(todoRepository.existsById(id)).thenReturn(true);
+        Mockito.when(todoRepository.findById(id)).thenReturn(Optional.of(new Todo(id, Status.OPEN, "Test Todo")));
 
         // When
         todoService.deleteTodo(id);
 
         // Then
-        Mockito.verify(todoRepository, Mockito.times(1)).existsById(id);
+        Mockito.verify(todoRepository, Mockito.times(1)).findById(id);
         Mockito.verify(todoRepository, Mockito.times(1)).deleteById(id);
     }
 
