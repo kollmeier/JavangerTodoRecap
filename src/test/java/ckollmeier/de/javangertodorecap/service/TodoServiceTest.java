@@ -1,6 +1,7 @@
 package ckollmeier.de.javangertodorecap.service;
 
 import ckollmeier.de.javangertodorecap.dto.TodoDTO;
+import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
 import ckollmeier.de.javangertodorecap.entity.Todo;
 import ckollmeier.de.javangertodorecap.enums.Status;
 import ckollmeier.de.javangertodorecap.repository.TodoRepository;
@@ -67,5 +68,36 @@ class TodoServiceTest {
 
         // Then
         assertTrue(actualDTOs.isEmpty());
+    }
+
+    @Test
+    void addTodo_shouldAddTodoAndReturnDTO() {
+        // Given
+        String statusString = "OPEN";
+        String description = "Test Todo";
+
+        TodoInputDTO todoInputDTO = new TodoInputDTO(statusString, description);
+        Todo todo = new Todo(null, Status.valueOf(statusString), description);
+        TodoDTO expectedDTO = new TodoDTO(null, statusString, description);
+        Mockito.when(todoRepository.save(Mockito.any(Todo.class))).thenReturn(todo);
+
+        // When
+        TodoDTO actualDTO = todoService.addTodo(todoInputDTO);
+
+        // Then
+        assertEquals(expectedDTO.status(), actualDTO.status());
+        assertEquals(expectedDTO.description(), actualDTO.description());
+        assertNotNull(actualDTO.id());
+
+        Mockito.verify(todoRepository, Mockito.times(1)).save(Mockito.any(Todo.class));
+    }
+
+    @Test
+    void addTodo_shouldThrowExceptionForNullInput() {
+        // Given
+        TodoInputDTO todoInputDTO = null;
+
+        // When & Then
+        assertThrows(NullPointerException.class, () -> todoService.addTodo(todoInputDTO));
     }
 }
