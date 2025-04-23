@@ -1,17 +1,24 @@
 package ckollmeier.de.javangertodorecap.controller;
 
+import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
 import ckollmeier.de.javangertodorecap.entity.Todo;
 import ckollmeier.de.javangertodorecap.enums.Status;
 import ckollmeier.de.javangertodorecap.repository.TodoRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import org.bson.json.JsonObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -56,5 +63,37 @@ class TodoControllerTest {
                             }
                         ]
                 """));
+    }
+
+    @Test
+    void getAllTodos_shouldReturnEmptyListForNoTodos() throws Exception{
+        // When / Then
+        mockMvc.perform(get("/api/todo"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+
+    @Test
+    void addTodo_shouldAddTodoAndReturnDTO() throws Exception {
+        // Given
+        TodoInputDTO todoInputDTO = new TodoInputDTO("OPEN", "Test Todo");
+        ObjectWriter objectWriter = new ObjectMapper().writer();
+        JsonObject jsonTodoInputDTO = new JsonObject(objectWriter.writeValueAsString(todoInputDTO));
+
+        // When / Then
+        mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO.getJson()))
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
+                            {
+                                "status": "OPEN",
+                                "description": "Test Todo"
+                            }
+                        """))
+                .andExpect(jsonPath("$.id").isNotEmpty());
+        List<Todo> savedTodos = todoRepository.findAll();
+        assertEquals(1, savedTodos.size());
+        Todo savedTodo = savedTodos.getFirst();
+        assertEquals(todoInputDTO.status(), savedTodo.status().toString());
+        assertEquals(todoInputDTO.description(), savedTodo.description());
     }
 }
