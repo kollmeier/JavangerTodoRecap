@@ -2,7 +2,15 @@ package ckollmeier.de.javangertodorecap.enums;
 
 public enum Status {
     /**
-     * Offene Todos.
+     * Offene To-dos.
      */
-    OPEN
+    OPEN,
+    /**
+     * To-dos in Bearbeitung.
+     */
+    IN_PROGRESS,
+    /**
+     * Erledigte To-dos.
+     */
+    DONE
 }
