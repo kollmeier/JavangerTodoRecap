@@ -72,9 +72,11 @@ public class TodoController {
     /**
      * Löscht ein Todo anhand seiner Id aus dem Repository.
      * @param id Id des zu löschenden Todos
+     * @return Statuscode 204
      */
     @DeleteMapping("{id}")
-    public void deleteTodo(final @PathVariable String id) {
+    public ResponseEntity<Void> deleteTodo(final @PathVariable String id) {
         todoService.deleteTodo(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

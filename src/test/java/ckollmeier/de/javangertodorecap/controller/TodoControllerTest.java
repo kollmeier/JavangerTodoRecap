@@ -186,7 +186,7 @@ class TodoControllerTest {
 
         // When / Then
         mockMvc.perform(delete("/api/todo/id-1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
         List<Todo> savedTodos = todoRepository.findAll();
         assertEquals(0, savedTodos.size());
     }
