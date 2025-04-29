@@ -1,6 +1,7 @@
 package ckollmeier.de.javangertodorecap.exceptionhandler;
 
 import ckollmeier.de.javangertodorecap.controller.TodoController;
+import ckollmeier.de.javangertodorecap.exception.NotFoundException;
 import ckollmeier.de.javangertodorecap.service.TodoService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc()
-class TodoControllerTest {
+class GlobalExceptionHandlerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -34,7 +35,7 @@ class TodoControllerTest {
     }
 
     @Test
-    void globalExceptionHandlerReturnsCorrectErrorDTOWhenExceptionIsThrown() throws Exception {
+    void globalExceptionHandlerReturnsStatus500WithCorrectErrorDTOWhenExceptionIsThrown() throws Exception {
         when(controller.getAllTodos()).thenThrow(new RuntimeException("Test Exception"));
 
         mockMvc.perform(get("/api/todo"))
@@ -44,6 +45,36 @@ class TodoControllerTest {
                      "error": "RuntimeException",
                       "message": "Test Exception",
                       "status": "INTERNAL_SERVER_ERROR"
+                   }
+                 """));
+    }
+
+    @Test
+    void globalExceptionHandlerReturnsBadRequestWithCorrectErrorDTOWhenNullPointerExceptionIsThrown() throws Exception {
+        when(controller.getAllTodos()).thenThrow(new NullPointerException("Test Exception"));
+
+        mockMvc.perform(get("/api/todo"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content ().json("""
+                   {
+                     "error": "NullPointerException",
+                      "message": "Test Exception",
+                      "status": "BAD_REQUEST"
+                   }
+                 """));
+    }
+
+    @Test
+    void globalExceptionHandlerReturnsNotFoundWithCorrectErrorDTOWhenNotFoundExceptionIsThrown() throws Exception {
+        when(controller.getAllTodos()).thenThrow(new NotFoundException("Test Exception"));
+
+        mockMvc.perform(get("/api/todo"))
+                .andExpect(status().isNotFound())
+                .andExpect(content ().json("""
+                   {
+                     "error": "NotFoundException",
+                      "message": "Test Exception",
+                      "status": "NOT_FOUND"
                    }
                  """));
     }
