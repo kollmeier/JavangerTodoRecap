@@ -2,12 +2,15 @@ package ckollmeier.de.javangertodorecap.service;
 
 import ckollmeier.de.javangertodorecap.converter.TodoConverter;
 import ckollmeier.de.javangertodorecap.converter.TodoDTOConverter;
+import ckollmeier.de.javangertodorecap.dto.OrthographyItemDTO;
+import ckollmeier.de.javangertodorecap.dto.OrthopgraphyCheckDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
 import ckollmeier.de.javangertodorecap.entity.Todo;
 import ckollmeier.de.javangertodorecap.enums.Action;
 import ckollmeier.de.javangertodorecap.enums.Entity;
 import ckollmeier.de.javangertodorecap.exception.NotFoundException;
+import ckollmeier.de.javangertodorecap.exception.OpenAIResultException;
 import ckollmeier.de.javangertodorecap.generator.IDGenerator;
 import ckollmeier.de.javangertodorecap.repository.TodoRepository;
 import lombok.NonNull;
@@ -33,6 +36,11 @@ public class TodoService {
     private final HistoryService historyService;
 
     /**
+     * Service to talk to ChatGPT.
+     */
+    private final ChatGPTService chatGPTService;
+
+    /**
      * Holt alle @{link Todo}s aus dem Repository und gibt sie als Liste von @{link TodoDTO}s zurück.
      * @return Liste von Todos als @{link TodoDTO}
      */
@@ -47,6 +55,16 @@ public class TodoService {
      */
     public TodoDTO addTodo(final @NonNull TodoInputDTO todoInputDTO) {
         Todo todo = TodoConverter.convert(todoInputDTO).withId(IDGenerator.generateID());
+        try {
+            OrthopgraphyCheckDTO orthopgraphyCheckDTO = chatGPTService.getOrthopgraphyCheck(todo.description());
+            if (orthopgraphyCheckDTO != null && orthopgraphyCheckDTO.errorCount() > 0) {
+                for (OrthographyItemDTO error: orthopgraphyCheckDTO.errors()) {
+                    todo = todo.withDescription(todo.description().replace(error.originalText(), error.correctedText()));
+                }
+            }
+        } catch (OpenAIResultException e) {
+            // ignore
+        }
         todoRepository.save(todo);
         historyService.addEntry(Action.CREATE, Entity.TODO, todo.id(), todo, null);
         return TodoDTOConverter.convert(todo);

@@ -25,7 +25,7 @@ class TodoServiceTest {
     @BeforeEach
     void setUp() {
         todoRepository = Mockito.mock(TodoRepository.class);
-        todoService = new TodoService(todoRepository, Mockito.mock(HistoryService.class));
+        todoService = new TodoService(todoRepository, Mockito.mock(HistoryService.class), Mockito.mock(ChatGPTService.class));
     }
 
     @Test
