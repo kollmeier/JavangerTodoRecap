@@ -20,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -80,7 +81,7 @@ class TodoControllerTest {
                                     """;
 
         mockServer.reset();
-        mockServer.expect(requestTo("https://api.openai.com/v1/chat/completions"))
+        mockServer.expect(ExpectedCount.manyTimes(), requestTo("https://api.openai.com/v1/chat/completions"))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(json, MediaType.APPLICATION_JSON));
     }
