@@ -2,7 +2,6 @@ package ckollmeier.de.javangertodorecap.service;
 
 import ckollmeier.de.javangertodorecap.converter.TodoConverter;
 import ckollmeier.de.javangertodorecap.converter.TodoDTOConverter;
-import ckollmeier.de.javangertodorecap.dto.OrthographyItemDTO;
 import ckollmeier.de.javangertodorecap.dto.OrthopgraphyCheckDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
@@ -10,7 +9,7 @@ import ckollmeier.de.javangertodorecap.entity.Todo;
 import ckollmeier.de.javangertodorecap.enums.Action;
 import ckollmeier.de.javangertodorecap.enums.Entity;
 import ckollmeier.de.javangertodorecap.exception.NotFoundException;
-import ckollmeier.de.javangertodorecap.exception.OpenAIResultException;
+import ckollmeier.de.javangertodorecap.exception.ChatGPTOpenAIResultException;
 import ckollmeier.de.javangertodorecap.generator.IDGenerator;
 import ckollmeier.de.javangertodorecap.repository.TodoRepository;
 import lombok.NonNull;
@@ -56,15 +55,13 @@ public class TodoService {
     public TodoDTO addTodo(final @NonNull TodoInputDTO todoInputDTO) {
         Todo todo = TodoConverter.convert(todoInputDTO).withId(IDGenerator.generateID());
         try {
-            OrthopgraphyCheckDTO orthopgraphyCheckDTO = chatGPTService.getOrthopgraphyCheck(todo.description());
+            OrthopgraphyCheckDTO orthopgraphyCheckDTO = chatGPTService.getOrthographyCheck(todo.description());
             if (orthopgraphyCheckDTO != null && orthopgraphyCheckDTO.errorCount() > 0) {
-                for (OrthographyItemDTO error: orthopgraphyCheckDTO.errors()) {
-                    todo = todo.withDescription(todo.description().replace(error.originalText(), error.correctedText()));
-                }
+                todo = todo.withDescription(orthopgraphyCheckDTO.errors().getLast().fullCorrectedText());
             }
-        } catch (OpenAIResultException e) {
+        } catch (ChatGPTOpenAIResultException e) {
             // ignore
-        }
+        } // Let ChatGPTOpenAIRequestException pass through
         todoRepository.save(todo);
         historyService.addEntry(Action.CREATE, Entity.TODO, todo.id(), todo, null);
         return TodoDTOConverter.convert(todo);

@@ -5,10 +5,13 @@ import ckollmeier.de.javangertodorecap.dto.ChatGPTCompletionAPIRequest;
 import ckollmeier.de.javangertodorecap.dto.ChatGPTCompletionAPIResponse;
 import ckollmeier.de.javangertodorecap.dto.ChatGPTMessage;
 import ckollmeier.de.javangertodorecap.dto.OrthopgraphyCheckDTO;
-import ckollmeier.de.javangertodorecap.exception.OpenAIResultException;
+import ckollmeier.de.javangertodorecap.exception.ChatGPTOpenAIResultException;
+import ckollmeier.de.javangertodorecap.exception.ChatGPTOpenAIRequestException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.victools.jsonschema.generator.*;
+import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -37,7 +40,8 @@ public class ChatGPTService {
                 .defaultHeader("Accept", "application/json")
                 .build();
         SchemaGeneratorConfigBuilder configBuilder = new SchemaGeneratorConfigBuilder(SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON)
-                .without(Option.SCHEMA_VERSION_INDICATOR);
+                .without(Option.SCHEMA_VERSION_INDICATOR)
+                .with(new JacksonModule());
         SchemaGenerator generator = new SchemaGenerator(configBuilder.build());
         this.orthographyCheckJSONSchema = String.format("""
                 {
@@ -55,35 +59,40 @@ public class ChatGPTService {
      * @param input the input
      * @return the orthography check dto
      */
-    public OrthopgraphyCheckDTO getOrthopgraphyCheck(final String input) throws OpenAIResultException {
+    public OrthopgraphyCheckDTO getOrthographyCheck(final String input) throws ChatGPTOpenAIResultException {
         ObjectMapper objectMapper = new ObjectMapper();
         ChatGPTCompletionAPIResponse response;
+        ChatGPTCompletionAPIRequest request;
+        try {
+            request = new ChatGPTCompletionAPIRequest(
+                    "gpt-4.1",
+                    List.of(new ChatGPTMessage(
+                            "user",
+                            String.format("Rechtschreibprüfung und Grammatikprüfung sowie Stilprüfung: \"%s\"", input))
+                    ),
+                    objectMapper.readValue(orthographyCheckJSONSchema, Object.class)
+            );
+        } catch (JsonProcessingException e) {
+            throw new ChatGPTOpenAIRequestException("Unexpected Error while generating Schema", e);
+        }
         try {
             response = Objects.requireNonNull(restClient.post()
                             .uri("")
-                            .body(new ChatGPTCompletionAPIRequest(
-                                    "gpt-4.1",
-                                    List.of(new ChatGPTMessage(
-                                            "user",
-                                            String.format("Rechtschreibprüfung: \"%s\"", input))
-                                    ),
-                                    objectMapper.readValue(orthographyCheckJSONSchema, Object.class)
-                                )
-                            ))
+                            .body(request))
                             .retrieve()
                             .body(ChatGPTCompletionAPIResponse.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new ChatGPTOpenAIRequestException("Unexpected Error while requesting OpenAI API", e);
         }
         if (response != null) {
             OrthopgraphyCheckDTO dto;
             try {
                 dto = objectMapper.readValue(response.choices().getFirst().message().content(), OrthopgraphyCheckDTO.class);
             } catch (JsonProcessingException e) {
-                    throw new OpenAIResultException("Unexpected Result from OpenAI", e);
+                throw new ChatGPTOpenAIResultException("Unexpected Error while parsing JSON from OpenAI", e);
             }
             return dto;
         }
-        return null;
+        throw new ChatGPTOpenAIResultException("Unexpected Error while requesting OpenAI API: no content returned");
     }
 }
