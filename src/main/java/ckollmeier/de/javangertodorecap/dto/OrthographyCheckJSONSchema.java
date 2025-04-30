@@ -11,7 +11,7 @@ public class OrthographyCheckJSONSchema {
 
     public final JsonSchema json_schema = new JsonSchema();
 
-    class JsonSchema {
+    public class JsonSchema {
         /**
          * The name of the schema, which is "orthography_check".
          */

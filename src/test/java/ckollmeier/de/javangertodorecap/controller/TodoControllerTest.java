@@ -15,8 +15,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureMockRestServiceServer;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.client.ExpectedCount;
+import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -25,6 +30,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -35,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureMockRestServiceServer
 class TodoControllerTest {
 
     @Autowired
@@ -49,10 +58,30 @@ class TodoControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private MockRestServiceServer mockServer;
+
+
     @BeforeEach
     void setUp() {
         todoRepository.deleteAll();
         historyEntryRepository.deleteAll();
+        mockServer.reset();
+        mockServer.expect(ExpectedCount.manyTimes(), requestTo("https://api.openai.com/v1/chat/completions"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess("""
+                                    {
+                                        "choices": [
+                                            {
+                                                "index": 0,
+                                                "message": {
+                                                    "role": "assistant",
+                                                    "content": ""
+                                                }
+                                            }
+                                        ]
+                                    }
+                                    """, MediaType.APPLICATION_JSON));
     }
 
     @Nested

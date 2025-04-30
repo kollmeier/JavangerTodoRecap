@@ -9,6 +9,8 @@ import ckollmeier.de.javangertodorecap.repository.TodoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureMockRestServiceServer;
+import org.springframework.test.web.client.MockRestServiceServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,10 +19,13 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@AutoConfigureMockRestServiceServer
 class TodoServiceTest {
 
     private TodoService todoService;
     private TodoRepository todoRepository;
+
+    private MockRestServiceServer mockServer;
 
     @BeforeEach
     void setUp() {

@@ -17,11 +17,6 @@ import java.util.Objects;
 @Service
 public class ChatGPTService {
     /**
-     * the open ai config.
-     */
-    private final OpenAIConfig openAIConfig;
-
-    /**
      * Rest client.
      */
     private final RestClient restClient;
@@ -32,8 +27,6 @@ public class ChatGPTService {
      * @param clientBuilder the client builder
      */
     public ChatGPTService(final OpenAIConfig openAIConfig, final RestClient.Builder clientBuilder) {
-        this.openAIConfig = openAIConfig;
-        System.out.println(openAIConfig.getKey());
         this.restClient = clientBuilder
                 .baseUrl("https://api.openai.com/v1/chat/completions")
                 .defaultHeader("Authorization", "Bearer " + openAIConfig.getKey())
