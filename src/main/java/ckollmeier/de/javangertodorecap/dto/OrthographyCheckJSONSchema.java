@@ -9,6 +9,10 @@ public class OrthographyCheckJSONSchema {
      */
     public final String type = "json_schema";
 
+    /**
+     * The JSON schema for the orthography check.
+     */
+    @SuppressWarnings({"checkstyle:VisibilityModifier", "checkstyle:MemberName"})
     public final JsonSchema json_schema = new JsonSchema();
 
     public class JsonSchema {
