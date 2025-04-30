@@ -66,6 +66,11 @@
             <artifactId>javamelody-spring-boot-starter</artifactId>
             <version>2.4.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.victools</groupId>
+            <artifactId>jsonschema-generator</artifactId>
+            <version>[4.21.0,5.0.0)</version>
+        </dependency>
     </dependencies>
 
     <build>

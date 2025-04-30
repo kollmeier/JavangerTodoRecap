@@ -8,6 +8,7 @@ import ckollmeier.de.javangertodorecap.dto.OrthopgraphyCheckDTO;
 import ckollmeier.de.javangertodorecap.exception.OpenAIResultException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.victools.jsonschema.generator.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -21,6 +22,8 @@ public class ChatGPTService {
      */
     private final RestClient restClient;
 
+    private final String orthographyCheckJSONSchema;
+
     /**
      * Instantiates a new Chat GPT service.
      * @param openAIConfig the open ai config
@@ -33,6 +36,18 @@ public class ChatGPTService {
                 .defaultHeader("Content-Type", "application/json")
                 .defaultHeader("Accept", "application/json")
                 .build();
+        SchemaGeneratorConfigBuilder configBuilder = new SchemaGeneratorConfigBuilder(SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON)
+                .without(Option.SCHEMA_VERSION_INDICATOR);
+        SchemaGenerator generator = new SchemaGenerator(configBuilder.build());
+        this.orthographyCheckJSONSchema = String.format("""
+                {
+                    "type":"json_schema",
+                    "json_schema":{
+                        "name":"orthography-check-dto",
+                        "schema":%s
+                    }
+                }"
+                """, generator.generateSchema(OrthopgraphyCheckDTO.class).toString());
     }
 
     /**
@@ -41,21 +56,27 @@ public class ChatGPTService {
      * @return the orthography check dto
      */
     public OrthopgraphyCheckDTO getOrthopgraphyCheck(final String input) throws OpenAIResultException {
-        ChatGPTCompletionAPIResponse response = Objects.requireNonNull(restClient.post()
-                        .uri("")
-                        .body(new ChatGPTCompletionAPIRequest(
-                                "gpt-4.1",
-                                List.of(new ChatGPTMessage(
-                                        "user",
-                                        String.format("Rechtschreibprüfung: \"%s\"", input))
-                                )
-                            )
-                        ))
-                        .retrieve()
-                        .body(ChatGPTCompletionAPIResponse.class);
         ObjectMapper objectMapper = new ObjectMapper();
+        ChatGPTCompletionAPIResponse response;
+        try {
+            response = Objects.requireNonNull(restClient.post()
+                            .uri("")
+                            .body(new ChatGPTCompletionAPIRequest(
+                                    "gpt-4.1",
+                                    List.of(new ChatGPTMessage(
+                                            "user",
+                                            String.format("Rechtschreibprüfung: \"%s\"", input))
+                                    ),
+                                    objectMapper.readValue(orthographyCheckJSONSchema, Object.class)
+                                )
+                            ))
+                            .retrieve()
+                            .body(ChatGPTCompletionAPIResponse.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         if (response != null) {
-            OrthopgraphyCheckDTO dto = null;
+            OrthopgraphyCheckDTO dto;
             try {
                 dto = objectMapper.readValue(response.choices().getFirst().message().content(), OrthopgraphyCheckDTO.class);
             } catch (JsonProcessingException e) {

@@ -23,7 +23,6 @@ public final class ChatGPTCompletionAPIRequest {
     /**
      * The format of the response.
      * This is used to specify that the response should be in JSON format.
-     * The JSON schema is defined by the {@link OrthographyCheckJSONSchema} class.
      */
-    private final OrthographyCheckJSONSchema response_format = new OrthographyCheckJSONSchema();
+    private final Object response_format;
 }
