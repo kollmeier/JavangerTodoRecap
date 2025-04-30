@@ -20,7 +20,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -66,22 +65,24 @@ class TodoControllerTest {
     void setUp() {
         todoRepository.deleteAll();
         historyEntryRepository.deleteAll();
-        mockServer.reset();
-        mockServer.expect(ExpectedCount.manyTimes(), requestTo("https://api.openai.com/v1/chat/completions"))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess("""
+        String json = """
                                     {
                                         "choices": [
                                             {
                                                 "index": 0,
                                                 "message": {
                                                     "role": "assistant",
-                                                    "content": ""
+                                                    "content": "{\\"errorCount\\":1,\\"errors\\":[{\\"textIndex\\":0,\\"originalText\\":\\"Tset\\",\\"correctedText\\":\\"Test\\"}]}"
                                                 }
                                             }
                                         ]
                                     }
-                                    """, MediaType.APPLICATION_JSON));
+                                    """;
+
+        mockServer.reset();
+        mockServer.expect(requestTo("https://api.openai.com/v1/chat/completions"))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(json, MediaType.APPLICATION_JSON));
     }
 
     @Nested
@@ -159,6 +160,63 @@ class TodoControllerTest {
             Todo savedTodo = savedTodos.getFirst();
             assertEquals(todoInputDTO.status(), savedTodo.status().toString());
             assertEquals(todoInputDTO.description(), savedTodo.description());
+        }
+
+        @Test
+        @DisplayName("sollte offene Redo-Schritte löschen, wenn ein neues Todo erstellt wird")
+        void addTodo_shouldRemoveRedoHistory() throws Exception {
+            // Given
+            ObjectWriter objectWriter = new ObjectMapper().writer();
+
+            TodoInputDTO todoInputDTO1 = new TodoInputDTO("OPEN", "Test Todo 1");
+            JsonObject jsonTodoInputDTO1 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO1));
+            TodoInputDTO todoInputDTO2 = new TodoInputDTO("IN_PROGRESS", "Test Todo 2");
+            JsonObject jsonTodoInputDTO2 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO2));
+            TodoInputDTO todoInputDTO3 = new TodoInputDTO("DONE", "Test Todo 3");
+            JsonObject jsonTodoInputDTO3 = new JsonObject(objectWriter.writeValueAsString(todoInputDTO3));
+
+            // When
+            mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO1.getJson()));
+            mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO2.getJson()));
+            assertEquals(2, historyEntryRepository.countByUndoneAtIsNull()); //  Zwei Undo-Schritte
+            mockMvc.perform(post("/api/todo/undo").contentType("application/json").content(jsonTodoInputDTO1.getJson()));
+            mockMvc.perform(post("/api/todo/undo").contentType("application/json").content(jsonTodoInputDTO2.getJson()));
+            assertEquals(0, historyEntryRepository.countByUndoneAtIsNull()); // Keine Undo-Schritte mehr
+            assertEquals(2, historyEntryRepository.countByUndoneAtIsNotNull()); // Zwei Redo-Schritte
+            mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO3.getJson()));
+
+            // Then
+            assertEquals(1, historyEntryRepository.countByUndoneAtIsNull()); // Ein Undo Schritt
+            assertEquals(0, historyEntryRepository.countByUndoneAtIsNotNull()); // Keine Redo-Schritte mehr
+        }
+    }
+
+@Nested
+    @DisplayName("POST /api/todo Tests")
+    class addTodo_shouldAddTodoAndReturnDTOWithFixedOrthography {
+        @Test
+        @DisplayName("sollte ein neues Todo erstellen und als DTO zurückgeben")
+        void addTodo_shouldAddTodoAndReturnDTO() throws Exception {
+            // Given
+            TodoInputDTO todoInputDTO = new TodoInputDTO("OPEN", "Tset Todo");
+            ObjectWriter objectWriter = new ObjectMapper().writer();
+            JsonObject jsonTodoInputDTO = new JsonObject(objectWriter.writeValueAsString(todoInputDTO));
+
+            // When / Then
+            mockMvc.perform(post("/api/todo").contentType("application/json").content(jsonTodoInputDTO.getJson()))
+                    .andExpect(status().isCreated())
+                    .andExpect(content().json("""
+                                {
+                                    "status": "OPEN",
+                                    "description": "Test Todo"
+                                }
+                            """));
+
+            List<Todo> savedTodos = todoRepository.findAll();
+            assertEquals(1, savedTodos.size());
+            Todo savedTodo = savedTodos.getFirst();
+            assertEquals(todoInputDTO.status(), savedTodo.status().toString());
+            assertEquals("Test Todo", savedTodo.description());
         }
 
         @Test
