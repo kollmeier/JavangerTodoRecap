@@ -2,8 +2,8 @@ package ckollmeier.de.javangertodorecap.dto;
 
 import java.util.List;
 
-public record OrthopgraphyCheckDTO(
+public record SpellingValidationDTO(
         int errorCount,
-        List<OrthographyItemDTO> errors
+        List<SpellingValidationItemDTO> errors
 ) {
 }

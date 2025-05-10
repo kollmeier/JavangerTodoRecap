@@ -4,12 +4,11 @@ import ckollmeier.de.javangertodorecap.configuration.OpenAIConfig;
 import ckollmeier.de.javangertodorecap.dto.ChatGPTCompletionAPIRequest;
 import ckollmeier.de.javangertodorecap.dto.ChatGPTCompletionAPIResponse;
 import ckollmeier.de.javangertodorecap.dto.ChatGPTMessage;
-import ckollmeier.de.javangertodorecap.dto.OrthopgraphyCheckDTO;
+import ckollmeier.de.javangertodorecap.dto.SpellingValidationDTO;
 import ckollmeier.de.javangertodorecap.exception.ChatGPTOpenAIResultException;
 import ckollmeier.de.javangertodorecap.exception.ChatGPTOpenAIRequestException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.victools.jsonschema.generator.*;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ public class ChatGPTService {
      */
     private final RestClient restClient;
 
-    private final String orthographyCheckJSONSchema;
+    private final String spellingValidationJSONSchema;
 
     /**
      * Instantiates a new Chat GPT service.
@@ -43,7 +42,7 @@ public class ChatGPTService {
                 .without(Option.SCHEMA_VERSION_INDICATOR)
                 .with(new JacksonModule());
         SchemaGenerator generator = new SchemaGenerator(configBuilder.build());
-        this.orthographyCheckJSONSchema = String.format("""
+        this.spellingValidationJSONSchema = String.format("""
                 {
                     "type":"json_schema",
                     "json_schema":{
@@ -51,7 +50,7 @@ public class ChatGPTService {
                         "schema":%s
                     }
                 }"
-                """, generator.generateSchema(OrthopgraphyCheckDTO.class).toString());
+                """, generator.generateSchema(SpellingValidationDTO.class).toString());
     }
 
     /**
@@ -59,7 +58,7 @@ public class ChatGPTService {
      * @param input the input
      * @return the orthography check dto
      */
-    public OrthopgraphyCheckDTO getOrthographyCheck(final String input) throws ChatGPTOpenAIResultException {
+    public SpellingValidationDTO validateSpelling(final String input) throws ChatGPTOpenAIResultException {
         ObjectMapper objectMapper = new ObjectMapper();
         ChatGPTCompletionAPIResponse response;
         ChatGPTCompletionAPIRequest request;
@@ -70,7 +69,7 @@ public class ChatGPTService {
                             "user",
                             String.format("Rechtschreibprüfung und Grammatikprüfung sowie Stilprüfung: \"%s\"", input))
                     ),
-                    objectMapper.readValue(orthographyCheckJSONSchema, Object.class)
+                    objectMapper.readValue(spellingValidationJSONSchema, Object.class)
             );
         } catch (JsonProcessingException e) {
             throw new ChatGPTOpenAIRequestException("Unexpected Error while generating Schema", e);
@@ -85,9 +84,9 @@ public class ChatGPTService {
             throw new ChatGPTOpenAIRequestException("Unexpected Error while requesting OpenAI API", e);
         }
         if (response != null) {
-            OrthopgraphyCheckDTO dto;
+            SpellingValidationDTO dto;
             try {
-                dto = objectMapper.readValue(response.choices().getFirst().message().content(), OrthopgraphyCheckDTO.class);
+                dto = objectMapper.readValue(response.choices().getFirst().message().content(), SpellingValidationDTO.class);
             } catch (JsonProcessingException e) {
                 throw new ChatGPTOpenAIResultException("Unexpected Error while parsing JSON from OpenAI", e);
             }

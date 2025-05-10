@@ -3,7 +3,7 @@ package ckollmeier.de.javangertodorecap.service;
 import ckollmeier.de.javangertodorecap.configuration.OpenAIConfig;
 import ckollmeier.de.javangertodorecap.dto.ChatGPTCompletionAPIRequest;
 import ckollmeier.de.javangertodorecap.dto.ChatGPTCompletionAPIResponse;
-import ckollmeier.de.javangertodorecap.dto.OrthopgraphyCheckDTO;
+import ckollmeier.de.javangertodorecap.dto.SpellingValidationDTO;
 import ckollmeier.de.javangertodorecap.exception.ChatGPTOpenAIRequestException;
 import ckollmeier.de.javangertodorecap.exception.ChatGPTOpenAIResultException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,16 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureMockRestServiceServer;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.client.ExpectedCount;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +24,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -116,37 +109,37 @@ class ChatGPTServiceTest {
         when(responseSpec.body(ChatGPTCompletionAPIResponse.class)).thenReturn(objectMapper.readValue(json, ChatGPTCompletionAPIResponse.class));
 
         // When
-        OrthopgraphyCheckDTO orthopgraphyCheckDTO = chatGPTService.getOrthographyCheck("Tset Todo");
+        SpellingValidationDTO spellingValidationDTO = chatGPTService.validateSpelling("Tset Todo");
 
         // Then
-        assertThat(orthopgraphyCheckDTO.errorCount()).isEqualTo(1);
-        assertThat(orthopgraphyCheckDTO.errors().getFirst().originalTextPassage()).isEqualTo("Tset Todo");
-        assertThat(orthopgraphyCheckDTO.errors().getFirst().correctedTextPassage()).isEqualTo("Test Todo");
-        assertThat(orthopgraphyCheckDTO.errors().getFirst().textPassageIndex()).isEqualTo(0);
-        assertThat(orthopgraphyCheckDTO.errors().getFirst().fullText()).isEqualTo("Tset Todo");
-        assertThat(orthopgraphyCheckDTO.errors().getFirst().fullCorrectedText()).isEqualTo("Test Todo");
+        assertThat(spellingValidationDTO.errorCount()).isEqualTo(1);
+        assertThat(spellingValidationDTO.errors().getFirst().originalTextPassage()).isEqualTo("Tset Todo");
+        assertThat(spellingValidationDTO.errors().getFirst().correctedTextPassage()).isEqualTo("Test Todo");
+        assertThat(spellingValidationDTO.errors().getFirst().textPassageIndex()).isEqualTo(0);
+        assertThat(spellingValidationDTO.errors().getFirst().fullText()).isEqualTo("Tset Todo");
+        assertThat(spellingValidationDTO.errors().getFirst().fullCorrectedText()).isEqualTo("Test Todo");
     }
 
     @Test
-    public void getOrthographyCheck_shouldThrowChatGPTOpenAIRequestException_whenRestServiceThrowsError() throws ChatGPTOpenAIResultException {
+    public void validateSpelling_shouldThrowChatGPTOpenAIRequestException_whenRestServiceThrowsError() throws ChatGPTOpenAIResultException {
         // Given
         when(responseSpec.body(ChatGPTCompletionAPIResponse.class)).thenThrow(new RuntimeException("Test Exception"));
 
         // When and Then
-        assertThrows(ChatGPTOpenAIRequestException.class, () -> chatGPTService.getOrthographyCheck("Tset Todo"));
+        assertThrows(ChatGPTOpenAIRequestException.class, () -> chatGPTService.validateSpelling("Tset Todo"));
     }
 
     @Test
-    public void getOrthographyCheck_shouldThrowChatGPTOpenAIResultException_whenRestServiceReturnsNull() throws ChatGPTOpenAIResultException {
+    public void validateSpelling_shouldThrowChatGPTOpenAIResultException_whenRestServiceReturnsNull() throws ChatGPTOpenAIResultException {
         // Given
         when(responseSpec.body(ChatGPTCompletionAPIResponse.class)).thenReturn(null);
 
         // When and Then
-        assertThrows(ChatGPTOpenAIResultException.class, () -> chatGPTService.getOrthographyCheck("Tset Todo"));
+        assertThrows(ChatGPTOpenAIResultException.class, () -> chatGPTService.validateSpelling("Tset Todo"));
     }
 
     @Test
-    public void getOrthographyCheck_shouldThrowChatGPTOpenAIResultException_whenRestServiceReturnsIncorrectJson() throws JsonProcessingException {
+    public void validateSpelling_shouldThrowChatGPTOpenAIResultException_whenRestServiceReturnsIncorrectJson() throws JsonProcessingException {
         // Given
         String json = """
                 {
@@ -189,7 +182,7 @@ class ChatGPTServiceTest {
         when(responseSpec.body(ChatGPTCompletionAPIResponse.class)).thenReturn(objectMapper.readValue(json, ChatGPTCompletionAPIResponse.class));
 
         // When and Then
-        Throwable cause = assertThrows(ChatGPTOpenAIResultException.class, () -> chatGPTService.getOrthographyCheck("Tset Todo"))
+        Throwable cause = assertThrows(ChatGPTOpenAIResultException.class, () -> chatGPTService.validateSpelling("Tset Todo"))
                 .getCause();
         assertThat(cause).isInstanceOf(JsonProcessingException.class);
     }

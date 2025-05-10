@@ -2,7 +2,7 @@ package ckollmeier.de.javangertodorecap.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 
-public record OrthographyItemDTO(
+public record SpellingValidationItemDTO(
         @JsonPropertyDescription("index of passage or word to be changed")
         int textPassageIndex,
         @JsonPropertyDescription("passage or word to be changed")

@@ -2,7 +2,7 @@ package ckollmeier.de.javangertodorecap.service;
 
 import ckollmeier.de.javangertodorecap.converter.TodoConverter;
 import ckollmeier.de.javangertodorecap.converter.TodoDTOConverter;
-import ckollmeier.de.javangertodorecap.dto.OrthopgraphyCheckDTO;
+import ckollmeier.de.javangertodorecap.dto.SpellingValidationDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.dto.TodoInputDTO;
 import ckollmeier.de.javangertodorecap.entity.Todo;
@@ -10,6 +10,7 @@ import ckollmeier.de.javangertodorecap.enums.Action;
 import ckollmeier.de.javangertodorecap.enums.Entity;
 import ckollmeier.de.javangertodorecap.exception.NotFoundException;
 import ckollmeier.de.javangertodorecap.exception.ChatGPTOpenAIResultException;
+import ckollmeier.de.javangertodorecap.exception.SpellingValidationException;
 import ckollmeier.de.javangertodorecap.generator.IDGenerator;
 import ckollmeier.de.javangertodorecap.repository.TodoRepository;
 import lombok.NonNull;
@@ -55,9 +56,9 @@ public class TodoService {
     public TodoDTO addTodo(final @NonNull TodoInputDTO todoInputDTO) {
         Todo todo = TodoConverter.convert(todoInputDTO).withId(IDGenerator.generateID());
         try {
-            OrthopgraphyCheckDTO orthopgraphyCheckDTO = chatGPTService.getOrthographyCheck(todo.description());
-            if (orthopgraphyCheckDTO != null && orthopgraphyCheckDTO.errorCount() > 0) {
-                todo = todo.withDescription(orthopgraphyCheckDTO.errors().getLast().fullCorrectedText());
+            SpellingValidationDTO spellingValidationDTO = chatGPTService.validateSpelling(todo.description());
+            if (spellingValidationDTO != null && spellingValidationDTO.errorCount() > 0) {
+                throw new SpellingValidationException("Spelling validation failed", spellingValidationDTO);
             }
         } catch (ChatGPTOpenAIResultException e) {
             // ignore
