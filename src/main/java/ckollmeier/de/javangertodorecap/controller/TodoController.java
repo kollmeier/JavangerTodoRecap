@@ -87,21 +87,21 @@ public class TodoController {
 
     /**
      * Macht die letzte Aktion rückgängig.
-     * @return Statuscode 204
+     * @return Statuscode 200
      */
     @PostMapping("/undo")
-    public ResponseEntity<Void> undoLastEntry() {
+    public List<TodoDTO> undoLastEntry() {
         historyService.undoLastEntry();
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return todoService.getAllTodos();
     }
 
     /**
      * Stellt die letzte rückgängig gemachte Aktion wieder her.
-     * @return Statuscode 204
+     * @return Statuscode 200
      */
     @PostMapping("/redo")
-    public ResponseEntity<Void> redoLastEntry() {
+    public List<TodoDTO> redoLastEntry() {
         historyService.redoLastEntry();
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return todoService.getAllTodos();
     }
 }

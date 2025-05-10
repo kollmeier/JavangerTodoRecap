@@ -94,9 +94,9 @@ class TodoControllerTest {
         @DisplayName("sollte eine Liste von Todos zurückgeben")
         void getAllTodos_shouldReturnTodosAsJsonWithCorrectDTOs() throws Exception {
             // Given
-            Todo todo1 = new Todo("id-1", Status.OPEN, "Test Todo 1");
-            Todo todo2 = new Todo("id-2", Status.OPEN, "Test Todo 2");
-            Todo todo3 = new Todo("id-3", Status.OPEN, "Test Todo 3");
+            Todo todo1 = new Todo("id-1", Status.OPEN, "Test Todo 1", null);
+            Todo todo2 = new Todo("id-2", Status.OPEN, "Test Todo 2", null);
+            Todo todo3 = new Todo("id-3", Status.OPEN, "Test Todo 3", null);
 
             todoRepository.save(todo1);
             todoRepository.save(todo2);
@@ -310,7 +310,7 @@ class TodoControllerTest {
         @DisplayName("sollte ein vorhandenes Todo als DTO zurückgeben")
         void getTodoById_shouldReturnExistingTodoAsDTO() throws Exception {
             // Given
-            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo", null);
             todoRepository.save(todo);
 
             // When / Then
@@ -329,7 +329,7 @@ class TodoControllerTest {
         @DisplayName("sollte 404 zurückgeben, wenn ein nicht vorhandenes Todo angefordert wird")
         void getTodoById_shouldReturn404ForNonExistingTodo() throws Exception {
             // Given
-            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo", null);
             todoRepository.save(todo);
 
             // When / Then
@@ -345,7 +345,7 @@ class TodoControllerTest {
         @DisplayName("sollte ein vorhandenes Todo aktualisieren und als DTO zurückgeben")
         void updateTodo_shouldUpdateTodoAndReturnDTO() throws Exception {
             // Given
-            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo", null);
             todoRepository.save(todo);
 
             TodoInputDTO todoInputDTO = new TodoInputDTO("IN_PROGRESS", "Updated Test Todo");
@@ -373,7 +373,7 @@ class TodoControllerTest {
         @DisplayName("sollte 404 zurückgeben, wenn ein nicht vorhandenes Todo aktualisiert wird")
         void updateTodo_shouldReturn404ForNonExistingTodo() throws Exception {
             // Given
-            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo", null);
             todoRepository.save(todo);
 
             TodoInputDTO todoInputDTO = new TodoInputDTO("IN_PROGRESS", "Updated Test Todo");
@@ -422,7 +422,7 @@ class TodoControllerTest {
         @Test
         void deleteTodo() throws Exception {
             // Given
-            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo", null);
             todoRepository.save(todo);
 
             // When / Then
@@ -435,7 +435,7 @@ class TodoControllerTest {
         @Test
         void deleteTodo_shouldReturn404ForNonExistingTodo() throws Exception {
             // Given
-            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo");
+            Todo todo = new Todo("id-1", Status.OPEN, "Test Todo", null);
             todoRepository.save(todo);
 
             // When / Then
@@ -508,7 +508,7 @@ class TodoControllerTest {
         @DisplayName("POST /undo sollte UPDATE rückgängig machen und 204 zurückgeben")
         void undoLastAction_shouldUndoUpdateAndReturnNoContent() throws Exception {
             // Given: Todo erstellen und dann updaten
-            Todo initialTodo = todoRepository.save(new Todo(null, Status.OPEN, "Initial State"));
+            Todo initialTodo = todoRepository.save(new Todo(null, Status.OPEN, "Initial State", null));
             String todoId = initialTodo.id();
 
             TodoInputDTO updateDto = new TodoInputDTO("DONE", "Updated State");
@@ -539,7 +539,7 @@ class TodoControllerTest {
         @DisplayName("POST /undo sollte DELETE rückgängig machen und 204 zurückgeben")
         void undoLastAction_shouldUndoDeleteAndReturnNoContent() throws Exception {
             // Given: Todo erstellen und dann löschen
-            Todo todoToDelete = todoRepository.save(new Todo(null, Status.IN_PROGRESS, "To be deleted then restored"));
+            Todo todoToDelete = todoRepository.save(new Todo(null, Status.IN_PROGRESS, "To be deleted then restored", null));
             String todoId = todoToDelete.id();
 
             mockMvc.perform(delete("/api/todo/" + todoId))
@@ -616,7 +616,7 @@ class TodoControllerTest {
         @DisplayName("POST /redo sollte UPDATE wiederherstellen und 204 zurückgeben")
         void redoLastAction_shouldRedoUpdateAndReturnNoContent() throws Exception {
             // Given: Todo erstellen und dann updaten
-            Todo initialTodo = todoRepository.save(new Todo(null, Status.OPEN, "Initial State"));
+            Todo initialTodo = todoRepository.save(new Todo(null, Status.OPEN, "Initial State", null));
             String todoId = initialTodo.id();
 
             TodoInputDTO updateDto = new TodoInputDTO("DONE", "Updated State");
@@ -649,7 +649,7 @@ class TodoControllerTest {
         @DisplayName("POST /redo sollte DELETE wiederherstellen und 204 zurückgeben")
         void redoLastAction_shouldRedoDeleteAndReturnNoContent() throws Exception {
             // Given: Todo erstellen und dann löschen
-            Todo todoToDelete = todoRepository.save(new Todo(null, Status.IN_PROGRESS, "To be deleted then restored"));
+            Todo todoToDelete = todoRepository.save(new Todo(null, Status.IN_PROGRESS, "To be deleted then restored", null));
             String todoId = todoToDelete.id();
 
             mockMvc.perform(delete("/api/todo/" + todoId))

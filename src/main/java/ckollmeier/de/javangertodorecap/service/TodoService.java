@@ -44,7 +44,7 @@ public class TodoService {
      * @return Liste von Todos als @{link TodoDTO}
      */
     public List<TodoDTO> getAllTodos() {
-        return TodoDTOConverter.convert(todoRepository.findAll());
+        return TodoDTOConverter.convert(todoRepository.findAllByOrderByCreatedAtDesc());
     }
 
     /**

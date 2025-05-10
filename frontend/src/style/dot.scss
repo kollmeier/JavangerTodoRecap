@@ -1,0 +1,16 @@
+@import 'settings';
+
+%dot-base { // Placeholder for dot styles
+  height: 50px;
+  width: 50px;
+  margin: auto;
+  border-radius: 50%;
+  padding: 0.3rem;
+  display: block;
+  font-size: 200%;
+}
+
+.dot {
+  @extend %dot-base;
+}
+

@@ -1,0 +1,39 @@
+@import 'style/settings';
+
+// --- Base Styles ---
+:root {
+  font-family: $font-stack;
+  line-height: $line-height-base;
+  font-weight: $font-weight-normal;
+
+  color-scheme: light dark; // Unterstützt beide Themes
+color: $color-light-text;
+  background-color: $color-light-bg;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// --- Elemente anpassen ---
+   a {
+     font-weight: $font-weight-medium;
+     color: $color-light-primary; // Verwende Primärfarbe
+   text-decoration: inherit;
+     &:hover {
+       color: $color-light-primary-hover;
+     }
+   }
+
+body {
+  margin: 0;
+  display: block;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}

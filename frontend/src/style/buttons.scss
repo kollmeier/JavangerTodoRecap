@@ -1,0 +1,102 @@
+@import './dot.scss';
+@import 'chips';
+@import 'settings';
+
+// --- Buttons & Links styled as Buttons ---
+%button-base {
+  @extend %chip-base;
+  cursor: pointer;
+  text-decoration: none; // Sicherstellen, dass Links nicht unterstrichen sind
+  border: 1px solid transparent; // Erlaube Border, standardmäßig transparent
+  transition: filter 0.2s ease-out; // Für Hover-Effekt
+
+  &:focus,
+  &:focus-visible {
+    // Keep vendor prefix for focus ring color for now
+    outline: 4px auto -webkit-focus-ring-color;
+    outline-offset: 2px; // Etwas Abstand für den Fokusring
+  }
+
+  // Standard-Hover: Leicht abdunkeln
+  &:hover {
+    filter: brightness(90%);
+  }
+
+  // Entferne alte Farb/Rand-Definitionen von hier
+  // background-color: $color-light-neutral-bg; // Entfernt
+  // color: $color-light-neutral-text; // Entfernt
+  // border: 1px solid $color-light-neutral-border; // Entfernt
+  // &:hover { border-color: $color-light-primary; } // Entfernt
+}
+
+// Placeholder für Farbvarianten
+%button-primary {
+  background-color: $color-light-primary;
+  color: $color-primary-text; // Dunkler Text auf hellem Blau
+}
+
+%button-secondary {
+  background-color: $color-light-secondary;
+  color: $color-primary-text; // Dunkler Text auf hellem Gold/Gelb
+}
+
+%button-danger {
+  background-color: $color-danger;
+  color: $color-danger-text; // Heller Text auf Rot
+}
+
+// Placeholder für Farbvarianten
+// ... (andere Placeholders) ...
+
+%button-neutral {
+  background-color: transparent; // Kein Hintergrund
+  color: $color-light-text-muted; // Textfarbe in gedämpftem Grau
+  border-color: $color-light-text-muted; // Rand in der gleichen Farbe
+
+  &:hover {
+    filter: none; // Standard-Filter entfernen
+    background-color: rgba($color-light-text-muted, 0.1); // Leichter Hintergrund bei Hover
+    border-color: darken($color-light-text-muted, 10%);
+  }
+}
+
+// Standard-Button (verwendet Primärfarbe)
+button, .button {
+  @extend %button-base;
+  @extend %button-primary; // Standardmäßig Primärfarbe
+}
+
+// Farb-Modifier Klassen (optional, aber nützlich)
+.button--primary {
+  @extend %button-primary;
+}
+.button--secondary {
+  @extend %button-secondary;
+}
+.button--danger {
+  @extend %button-danger;
+}
+.button--neutral {
+  @extend %button-neutral;
+}
+
+// --- Utility Buttons ---
+a.close-button {
+  position: absolute;
+  top: $padding-base;
+  font-size: 1.5em;
+  right: $padding-base;
+  color: darkred;
+}
+
+.circle-button {
+  color: inherit;
+  &:hover {
+    color: inherit;;
+  }
+  > *:first-child {
+    @extend %button-primary;
+    @extend %button-base;
+    @extend %dot-base; // Apply dot styles to child
+  }
+}

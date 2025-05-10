@@ -1,0 +1,11 @@
+@import '../style/lists_and_cards';
+@import '../style/settings';
+@import '../style/dot';
+@import '../style/buttons';
+
+ul.todo-list {
+  @extend %entity-list-base;
+  > * {
+    @extend %entity-card-base;
+  }
+}

@@ -19,8 +19,8 @@ class TodoDTOConverterTest {
         String statusString = "OPEN";
         String description = "Test Todo";
 
-        Todo todo = new Todo(id, Status.valueOf(statusString), description);
-        TodoDTO expectedDTO = new TodoDTO(id, statusString, description);
+        Todo todo = new Todo(id, Status.valueOf(statusString), description, null);
+        TodoDTO expectedDTO = new TodoDTO(id, statusString, description, null);
 
         // When
         TodoDTO actualDTO = TodoDTOConverter.convert(todo);
@@ -45,14 +45,14 @@ class TodoDTOConverterTest {
         String statusString = "OPEN";
         String description1 = "Test Todo 1";
 
-        Todo todo1 = new Todo(id1, Status.valueOf(statusString), description1);
-        TodoDTO expectedDTO1 = new TodoDTO(id1, statusString, description1);
+        Todo todo1 = new Todo(id1, Status.valueOf(statusString), description1, null);
+        TodoDTO expectedDTO1 = new TodoDTO(id1, statusString, description1, null);
 
         String id2 = UUID.randomUUID().toString();
         String description2 = "Test Todo 2";
 
-        Todo todo2 = new Todo(id2, Status.valueOf(statusString), description2);
-        TodoDTO expectedDTO2 = new TodoDTO(id2, statusString, description2);
+        Todo todo2 = new Todo(id2, Status.valueOf(statusString), description2, null);
+        TodoDTO expectedDTO2 = new TodoDTO(id2, statusString, description2, null);
 
         // When
         List<TodoDTO> actualDTOs = TodoDTOConverter.convert(List.of(todo1, todo2));

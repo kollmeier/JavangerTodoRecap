@@ -5,6 +5,8 @@ import ckollmeier.de.javangertodorecap.entity.Todo;
 import ckollmeier.de.javangertodorecap.enums.Status;
 import lombok.NonNull;
 
+import java.time.Instant;
+
 /**
  * Util-Klasse zum Konvertieren in ein @{link Todo}-Objekt.
  */
@@ -20,6 +22,6 @@ public final class TodoConverter {
      * @return konvertiertes Todo
      */
     public static Todo convert(final @NonNull TodoInputDTO todoInputDTO) {
-        return new Todo(null, Status.valueOf(todoInputDTO.status()), todoInputDTO.description());
+        return new Todo(null, Status.valueOf(todoInputDTO.status()), todoInputDTO.description(), Instant.now());
     }
 }

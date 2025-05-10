@@ -1,0 +1,29 @@
+@import "./settings";
+
+%chip-base {
+  // Chip Style Anpassungen
+  display: inline-block; // Wichtig für Chip-Layout
+  border-radius: 999px; // Pillenform (oder ein kleinerer Wert wie 1em für abgerundet)
+  padding: 0.3em 0.8em; // Angepasstes Padding für Chip-Look (statt $padding-button-vertical/horizontal)
+  font-size: 0.9em; // Etwas kleiner für Chips? (Optional)
+  font-weight: $font-weight-medium;
+  text-align: center; // Sicherstellen, dass Text zentriert ist
+  font-family: inherit;
+}
+
+%chip-color_one {
+  background-color: adjust-color($color-light-card-one-bg, $lightness: -20%, $saturation: 20%);
+  color: $color-primary-text;
+}
+
+%chip-color_two {
+  background-color: adjust-color($color-light-card-two-bg, $lightness: -20%, $saturation: 20%);
+  color: $color-primary-text;
+}
+
+%chip-color_three {
+  background-color: adjust-color($color-light-card-three-bg, $lightness: -20%, $saturation: 20%);
+  color: $color-primary-text;
+}
+
+

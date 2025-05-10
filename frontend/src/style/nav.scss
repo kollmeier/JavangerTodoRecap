@@ -1,0 +1,43 @@
+@import 'settings';
+
+// --- Navigation ---
+nav {
+  ul {
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    column-gap: $gap-card-actions;
+    row-gap: $gap-card-inner; // Use inner gap?
+    padding: $padding-base $padding-base 0 $padding-base;
+    margin: 0; // Added for consistency
+    flex-wrap: wrap;
+    li {
+      flex-shrink: 1;
+      display: inline;
+      // Use specific action padding
+      line-height: 1;
+
+      a {
+        display: inline;
+        padding: $padding-button-action-vertical $padding-button-horizontal;
+        border-radius: 0;
+        font-size: 1.1em;
+        font-weight: $font-weight-medium;
+        font-family: inherit;
+        cursor: pointer;
+        background-color: $color-light-neutral-bg; // Konsistent mit Buttons
+        color: $color-light-neutral-text;
+        border: 2px solid transparent;
+        &.active {
+          border-bottom-color: $color-light-primary; // Akzent für aktiv
+        }
+        &:hover {
+          background-color: lighten($color-light-neutral-bg, 5%);
+          color: $color-light-primary; // Akzentfarbe für Text-Hover
+        }
+      }
+    }
+  }
+}

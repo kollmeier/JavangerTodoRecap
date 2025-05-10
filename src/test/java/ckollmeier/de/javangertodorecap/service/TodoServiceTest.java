@@ -41,15 +41,15 @@ class TodoServiceTest {
         String statusString = "OPEN";
         String description1 = "Test Todo 1";
 
-        Todo todo1 = new Todo(id1, Status.valueOf(statusString), description1);
-        TodoDTO expectedDTO1 = new TodoDTO(id1, statusString, description1);
+        Todo todo1 = new Todo(id1, Status.valueOf(statusString), description1, null);
+        TodoDTO expectedDTO1 = new TodoDTO(id1, statusString, description1, null);
         todos.add(todo1);
 
         String id2 = UUID.randomUUID().toString();
         String description2 = "Test Todo 2";
 
-        Todo todo2 = new Todo(id2, Status.valueOf(statusString), description2);
-        TodoDTO expectedDTO2 = new TodoDTO(id2, statusString, description2);
+        Todo todo2 = new Todo(id2, Status.valueOf(statusString), description2, null);
+        TodoDTO expectedDTO2 = new TodoDTO(id2, statusString, description2, null);
         todos.add(todo2);
 
         Mockito.when(todoRepository.findAll()).thenReturn(todos);
@@ -82,8 +82,8 @@ class TodoServiceTest {
         String description = "Test Todo";
 
         TodoInputDTO todoInputDTO = new TodoInputDTO(statusString, description);
-        Todo todo = new Todo(null, Status.valueOf(statusString), description);
-        TodoDTO expectedDTO = new TodoDTO(null, statusString, description);
+        Todo todo = new Todo(null, Status.valueOf(statusString), description, null);
+        TodoDTO expectedDTO = new TodoDTO(null, statusString, description, null);
         Mockito.when(todoRepository.save(Mockito.any(Todo.class))).thenReturn(todo);
 
         // When
@@ -113,8 +113,8 @@ class TodoServiceTest {
         String statusString = "OPEN";
         String description = "Test Todo";
 
-        Todo todo = new Todo(id, Status.valueOf(statusString), description);
-        TodoDTO expectedDTO = new TodoDTO(id, statusString, description);
+        Todo todo = new Todo(id, Status.valueOf(statusString), description, null);
+        TodoDTO expectedDTO = new TodoDTO(id, statusString, description, null);
         Mockito.when(todoRepository.findById(id)).thenReturn(java.util.Optional.of(todo));
 
         // When
@@ -148,9 +148,9 @@ class TodoServiceTest {
         String description = "Test Todo";
 
         TodoInputDTO todoInputDTO = new TodoInputDTO(statusString, description);
-        Todo previousTodo = new Todo(id, Status.valueOf(previousStatusString), previousDescription);
-        Todo todo = new Todo(id, Status.valueOf(statusString), description);
-        TodoDTO expectedDTO = new TodoDTO(id, statusString, description);
+        Todo previousTodo = new Todo(id, Status.valueOf(previousStatusString), previousDescription, null);
+        Todo todo = new Todo(id, Status.valueOf(statusString), description, null);
+        TodoDTO expectedDTO = new TodoDTO(id, statusString, description, null);
         Mockito.when(todoRepository.findById(id)).thenReturn(Optional.of(previousTodo));
         Mockito.when(todoRepository.save(Mockito.any(Todo.class))).thenReturn(todo);
 
@@ -203,7 +203,7 @@ class TodoServiceTest {
     void deleteTodo_shouldDeleteTodo() {
         // Given
         String id = UUID.randomUUID().toString();
-        Mockito.when(todoRepository.findById(id)).thenReturn(Optional.of(new Todo(id, Status.OPEN, "Test Todo")));
+        Mockito.when(todoRepository.findById(id)).thenReturn(Optional.of(new Todo(id, Status.OPEN, "Test Todo", null)));
 
         // When
         todoService.deleteTodo(id);

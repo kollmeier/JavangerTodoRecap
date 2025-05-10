@@ -1,0 +1,117 @@
+@import '../style/settings';
+@import '../style/lists_and_cards';
+@import '../style/buttons';
+@import '../style/chips';
+
+li.todo-card {
+  line-height: 1.5;
+
+  .todo-type {
+    @extend %dot-base;
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    // *** NEU: Textfarbe für Kreise auf hellen Hintergründen ***
+    color: $color-light-text; // Dunkler Text
+  }
+
+  .todo-actions {
+    @extend %entity-card-actions-base;
+    border-top-color: $color-light-card-border;
+    a, button {
+      @extend %button-base;
+      @extend %button-primary;
+
+      &.action--delete {
+        @extend %button-danger;
+      }
+      &.action--secondary {
+        @extend %button-secondary;
+      }
+      &.action--neutral {
+        @extend %button-neutral;
+      }
+    }
+  }
+
+  .todo-type {
+    height: $size-card-type-circle;
+    width: $size-card-type-circle;
+    padding: $padding-card-type-circle;
+    margin-top: $position-card-type-circle - $padding-card-type-circle * 2 - $gap-card-inner * 3;
+    margin-left: $position-card-type-circle  - $padding-card-type-circle * 2 - $gap-card-inner * 3;
+  }
+
+  > div {
+    @extend %entity-card-inner-div;
+  }
+  &.todo-card__open {
+    background-color: $color-light-card-one-bg;
+    .todo-type { background-color: darken($color-light-card-one-bg, 5%); }
+  }
+  &.todo-card__in_progress {
+    background-color: $color-light-card-two-bg;
+    .todo-type, .todo-price { background-color: darken($color-light-card-two-bg, 5%); }
+  }
+  &.todo-card__done {
+    background-color: $color-light-card-three-bg;
+    .todo-type, .todo-price { background-color: darken($color-light-card-three-bg, 5%); }
+  }
+
+  .todo-type {
+    grid-column-start: first;
+    grid-column-end: span 1;
+    grid-row-start: head;
+    grid-row-end: span 2;
+    place-self: end;
+  }
+
+  .todo-status {
+    @extend %chip-base;
+    padding: 0.4rem;
+    line-height: 0.5rem;
+    grid-column-start: auto;
+    grid-column-end: span 2;
+    grid-row-start: head;
+    grid-row-end: span 2;
+    place-self: end start;
+  }
+  .todo-date {
+    font-size: 0.9rem;
+    font-style: italic;
+    grid-column-start: last;
+    grid-column-end: span 1;
+    grid-row-start: head;
+    grid-row-end: span 2;
+    place-self: end end;
+  }
+
+  &.todo-card__open .todo-status {
+    @extend %chip-color_one;
+  }
+
+  &.todo-card__in_progress .todo-status {
+    @extend %chip-color_two;
+  }
+
+  &.todo-card__done .todo-status {
+    @extend %chip-color_three;
+  }
+
+  .todo-description {
+    grid-column-start: first;
+    grid-column-end: span 2;
+    grid-row-start: auto;
+    grid-row-end: span 1;
+    text-wrap: wrap;
+  }
+
+  .todo-actions {
+    grid-column-start: first;
+    grid-column-end: span 4;
+    grid-row-start: foot;
+    grid-row-end: span 1;
+    place-self: end start;
+  }
+}

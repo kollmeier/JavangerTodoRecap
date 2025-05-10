@@ -1,0 +1,192 @@
+@import 'settings';
+
+// --- Forms ---
+form {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  row-gap: $gap-list; // Use list gap?
+  column-gap: $gap-card-inner; // Use card inner gap?
+
+  > .input-widget {
+    flex-grow: 1;
+    flex-basis: 1%;
+    // line-height: 1rem; // Already in .input-widget base
+
+
+    // Specific input types taking full width
+    &.input-name,
+    &.input-description {
+      flex-basis: 100%;
+    }
+
+    &.input-select {
+      flex-grow: 1;
+      flex-basis: 40%;
+    }
+
+    &.input-price {
+      flex-grow: 1;
+      flex-basis: 40%;
+    }
+  }
+
+  button {
+    // Use specific action padding for form buttons
+    padding: $padding-button-action-vertical $padding-button-horizontal;
+  }
+
+  // React Select Overrides (nested within form)
+  .select {
+    &__control {
+      border-color: transparent;
+      border-radius: 0;
+      border-style: solid;
+      border-width: 0;
+      box-shadow: none;
+      min-height: unset;
+      line-height: inherit;
+      font-size: inherit;
+      background-color: transparent; // Sollte vom .input-widget erben
+    }
+
+    &__value-container {
+      padding: 0;
+    }
+
+    &__indicator-separator {
+      display: none;
+    }
+
+    &__input-container {
+      margin: 0;
+      padding: 0;
+    }
+
+    &__indicator {
+      padding: 0;
+      width: 100%;
+      svg {
+        margin-top: $padding-input-vertical * 2;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    &__menu {
+      margin: 0.2rem (-$padding-input-horizontal) 0 (-$padding-input-horizontal);
+      width: calc(100% + 2 * #{$padding-input-horizontal});
+      border-radius: 0;
+      box-shadow: 0 0 0 1px $color-light-neutral-border; // Randfarbe Light
+      border-top: 0 solid transparent;
+      background-color: $color-light-bg; // Haupt-Hintergrund Light
+      color: $color-light-text;
+    }
+  }
+}
+
+// --- Input Widgets ---
+.input-widget {
+  display: grid;
+  grid-template-columns: minmax(max-content, 80%) minmax(max-content, 20%);
+  grid-template-rows: 1rem 1rem;
+  padding: $padding-input-vertical $padding-input-horizontal;
+  border-radius: 0.3rem;
+  box-shadow: inset 2px 2px 3px -3px $color-light-neutral-border;
+  line-height: 1rem; // Added from form context
+  border: 1px solid $color-light-neutral-border;
+  background-color: $color-light-neutral-bg;
+  color: $color-light-neutral-text; // Textfarbe im Input
+
+  input, &.input-image p {
+    outline: none;
+    border: none;
+    display: block;
+    line-height: inherit;
+    font-size: 1rem;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    min-height: 1rem;
+    background-color: transparent; // Erbt vom Widget
+    color: inherit; // Erbt vom Widget
+  }
+  &.input-select {
+    padding-right: 0;
+    grid-template-columns: 1fr 2rem;
+    label {
+      grid-column-start: 1;
+      grid-column-end: span 1;
+      grid-row-start: 1;
+      grid-row-end: span 1;
+    }
+    > div {
+      grid-column-start: 1;
+      grid-column-end: span 2;
+      grid-row-start: 2;
+      grid-row-end: span 1;
+      width: 100%;
+      .select__indicators {
+        margin-top: -1rem;
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+
+  }
+
+  &.input-image, &.input-inline-button {
+    position: relative;
+    border-radius: 30rem 100rem 100rem 30rem;
+
+    p, {
+      grid-column-start: 1;
+      grid-column-end: 1;
+      grid-row-start: 2;
+      grid-row-end: 2;
+    }
+
+    label {
+      grid-column-start: 1;
+      grid-column-end: span 1;
+      grid-row-start: 1;
+      grid-row-end: span 1;
+    }
+
+    > button, > a.button {
+      grid-column-start: 2;
+      grid-column-end: 2;
+      grid-row-start: 1;
+      grid-row-end: span 2;
+      text-wrap: nowrap;
+      margin-top: calc( -1px - $padding-input-vertical);
+      margin-right: calc( -1px - $padding-input-horizontal);
+      margin-bottom: calc( -1px - $padding-input-vertical);
+      height: auto;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border: 1px solid $color-light-neutral-border;
+      position: relative;
+    }
+  }
+
+  input {
+    grid-column-start: 1;
+    grid-column-end: span 2;
+    grid-row-start: 2;
+    grid-row-end: span 1;
+  }
+
+  label {
+    grid-column-start: 1;
+    grid-column-end: span 2;
+    grid-row-start: 1;
+    grid-row-end: 1;
+    display: block;
+    font-size: 0.8rem;
+    padding: 0;
+    color: $color-light-text-muted; // Gedämpfte Farbe für Label
+  }
+}

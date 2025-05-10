@@ -1,0 +1,85 @@
+@import "settings";
+// --- Entity List & Card Placeholders ---
+
+%entity-list-base {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  column-gap: $gap-list;
+  row-gap: $gap-list;
+  flex-wrap: wrap;
+  position: relative;
+  margin: 1rem; // Added for consistency
+}
+
+// --- Entity List & Card Placeholders ---
+%entity-card-base {
+  &, > li {
+    border-radius: $card-radius-top-left $card-radius-top-right $card-radius-bottom-right $card-radius-bottom-left;
+    padding: $padding-base;
+    // background-color: $color-light-card-menu-bg; // Alt: Basis war Menüfarbe
+    background-color: $color-light-card-bg; // *** NEU: Basis ist Weiß ***
+    border: 1px solid $color-light-card-border; // *** NEU: Heller Rand hinzugefügt ***
+  }
+  > li {
+    margin: -$padding-base;
+    width: auto;
+    height: 100%;
+  }
+  // box-shadow: 2px 2px 5px -1px rgba($color-light-bg, 0.5); // Alt: Schatten basierend auf altem BG
+  box-shadow: 2px 2px 5px -1px rgba($color-light-text, 0.1); // *** NEU: Subtiler Schatten basierend auf Textfarbe ***
+  flex-grow: 1;
+  flex-basis: 25%;
+  max-width: 30%;
+  min-height: 5rem;
+  position: relative;
+  min-width: calc(374px + 2 * #{$padding-base}); // Ensure calculation works
+}
+
+$circle-type-size: ($position-card-type-circle + $size-card-type-circle - $padding-base + 2 * $gap-card-inner);
+$circle-price-size: ($position-card-price-circle + $size-card-price-circle - $padding-base + 2 * $gap-card-inner);
+%entity-card-inner-div {
+  display: grid;
+  grid-template-columns: [first] $circle-type-size [middle] 1fr [side] $circle-price-size [last] $circle-price-size;
+  grid-template-rows: [head] repeat(2, $circle-type-size / 2) [content] repeat(auto-fit, minmax(1.2rem, 1fr)) [foot] $circle-price-size;
+  gap: $gap-card-inner;
+  justify-content: start;
+  align-items: start;
+  &, > form {
+    height: 100%;
+  }
+}
+
+%entity-card-detail-base {
+  display: block;
+  line-height: 1rem;
+  //overflow: clip;
+  //padding: 1.2rem 0 0.15rem; // Variables? $detail-padding-top: 1.2rem; $detail-padding-bottom: 0.15rem;
+  border: 1px transparent solid;
+  font-size: 1rem;
+  text-wrap: wrap;
+  min-width: 200px;
+}
+
+%entity-card-actions-base {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  align-self: flex-end;
+  flex-wrap: wrap;
+  column-gap: $gap-card-actions;
+  row-gap: $gap-card-inner; // Use inner gap?
+  border-top: $color-light-neutral-border solid 1px; // Use variable
+  padding-top: $gap-list; // Use list gap?
+  flex-grow: 1; // Common from combined name/actions rule
+  width: 100%;  // Common from combined name/actions rule
+}
+
+%entity-card-action-item-base {
+  flex-shrink: 1;
+  width: fit-content;
+  display: inline;
+  // Use specific action padding
+  padding: $padding-button-action-vertical $padding-button-horizontal;
+  line-height: 1;
+}

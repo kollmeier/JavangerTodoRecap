@@ -1,0 +1,74 @@
+// --- Variables ---
+$enable-dark-theme: false;
+$font-stack: system-ui, Avenir, Helvetica, Arial, sans-serif;
+$line-height-base: 1.5;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+
+// --- Harmonized Color Palette ---
+
+// --- Light Theme Colors ---
+$color-light-bg:           #f8f9fa;  // Dunkles Blau-Grau (statt #242424)
+$color-light-text:         #282c34;  // Helles Grau (statt fast weiß)
+$color-light-text-muted:   #7f848e;  // Gedämpftes Grau für Labels etc. (statt #777777)
+
+$color-light-primary:      #61afef;  // Helles Blau (Akzent für Links etc.)
+$color-light-primary-hover:#7ec0f4;  // Helleres Blau für Hover
+
+$color-light-secondary:    #e5c07b;  // Sanftes Gold/Gelb (Sekundärer Akzent)
+
+$color-light-neutral-bg:     adjust-color($color-light-bg, $lightness: 1%);  // Etwas helleres Dunkelgrau (für Inputs, Buttons)
+$color-light-neutral-text:   #3b4048;  // Helles Grau für Text auf neutralem BG
+$color-light-neutral-border: adjust-color(#4b515c, $lightness: 30%); // Randfarbe für neutrale Elemente
+
+// Card Backgrounds (Light Theme) - NEUE DEFINITIONEN
+$color-light-card-bg:          #ffffff; // Basis-Kartenhintergrund (jetzt Weiß statt Grau)
+$color-light-card-border:      #dee2e6; // Hellerer Rand für weiße Karten (Bootstrap $gray-300)
+
+// Spezifische Kartenfarben (Deutlicher Unterschied zu Buttons)
+$color-light-card-one-bg:     #fff0e1; // Sehr helles Orange/Pfirsich (statt #d19a66)
+$color-light-card-two-bg:     #e9f5e9; // Sehr helles Grün (statt #98c379)
+$color-light-card-three-bg: #fff9e0; // Sehr helles Gelb (statt #e5c07b - Sekundär-Button)
+
+// --- Semantic Colors ---
+$color-danger:             #dc3545; // Rot für Löschen/Warnungen
+$color-danger-text:        #ffffff; // Weißer Text auf rotem Grund
+$color-primary-text:       #282c34; // Dunkler Text für helle Primär/Sekundär-Farben
+
+// --- Dark Theme Colors ---
+$color-dark-bg:            #f8f9fa;  // Sehr helles Grau / Off-White (statt #ffffff)
+$color-dark-text:          #282c34;  // Dunkles Blau-Grau (wie Light BG)
+$color-dark-text-muted:    #6c757d;  // Gedämpftes Grau für Labels etc.
+
+$color-dark-primary:       #007bff;  // Standard-Blau (guter Kontrast auf hellem BG)
+$color-dark-primary-hover: #0056b3;  // Dunkleres Blau für Hover
+
+$color-dark-secondary:     #fd7e14;  // Helles Orange (Sekundärer Akzent)
+
+$color-dark-neutral-bg:    #ffffff;  // Weiß (für Inputs, Buttons)
+$color-dark-neutral-text:  $color-dark-text; // Dunkler Text auf neutralem BG
+$color-dark-neutral-border:#ced4da;  // Helle Grau-Randfarbe
+
+// Spacing
+$padding-base: 1rem;
+$padding-button-vertical: 0.1rem;
+$padding-button-horizontal: 0.5rem;
+$padding-button-action-vertical: 0.3rem; // Specific for form/card actions
+$padding-input-vertical: 0.1rem;
+$padding-input-horizontal: 1rem;
+$gap-list: 0.8rem;
+$gap-card-inner: 0.2rem;
+$gap-card-actions: 0.25rem;
+$gap-list-with-box: 2rem;
+$gap-side-column: 1rem;
+$card-radius-top-left: 0.8rem;
+$card-radius-top-right: 1rem;
+$card-radius-bottom-left: 1.5rem;
+$card-radius-bottom-right: 2.4rem;
+// card-circle-areas
+$padding-card-type-circle: 0.3rem;
+$position-card-type-circle: -($card-radius-top-left / 2);
+$size-card-type-circle: ($card-radius-top-left * 2) - ($position-card-type-circle * 4) - $padding-card-type-circle;
+$padding-card-price-circle: 0.3rem;
+$position-card-price-circle: 0;
+$size-card-price-circle: ($card-radius-bottom-right * 2) - ($position-card-price-circle * 4) - $padding-card-price-circle;

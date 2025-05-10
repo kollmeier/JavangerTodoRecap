@@ -66,9 +66,9 @@ class HistoryServiceTest {
         testHistoryEntryId = UUID.randomUUID().toString();
 
         // Status hinzugefügt, basierend auf dem Code-Snippet
-        testTodo = new Todo(testTodoId, Status.IN_PROGRESS, "Aktuelle Beschreibung");
+        testTodo = new Todo(testTodoId, Status.IN_PROGRESS, "Aktuelle Beschreibung", null);
         // Zustand vor Update/Delete, oder null bei Create
-        previousTestTodo = new Todo(testTodoId, Status.OPEN, "Vorherige Beschreibung");
+        previousTestTodo = new Todo(testTodoId, Status.OPEN, "Vorherige Beschreibung", null);
     }
 
     // --- Tests für addEntry ---

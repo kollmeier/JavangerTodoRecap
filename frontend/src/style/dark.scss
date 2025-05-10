@@ -1,0 +1,154 @@
+@if $enable-dark-theme {
+  // --- Dark Theme Anpassungen ---
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color: $color-dark-text;
+      background-color: $color-dark-bg;
+    }
+  }
+
+  // --- Dark Theme Anpassungen ---
+  @media (prefers-color-scheme: dark) {
+    a {
+      color: $color-dark-primary;
+
+      &:hover {
+        color: $color-dark-primary-hover;
+      }
+    }
+    // Definiere Dark-Theme Button Farben
+    %button-primary-dark {
+      background-color: $color-dark-primary; // Dunkles Blau
+      color: $color-dark-neutral-bg; // Heller Text (Weiß)
+    }
+    %button-secondary-dark {
+      background-color: $color-dark-secondary; // Dunkles Orange
+      color: $color-dark-text; // Dunkler Text
+    }
+    %button-danger-dark {
+      background-color: $color-danger; // Rot bleibt oft gleich
+      color: $color-danger-text; // Heller Text
+    }
+    %button-neutral-dark {
+      background-color: $color-dark-text-muted; // Dunkles gedämpftes Grau
+      color: $color-dark-bg; // Sehr heller Text
+    }
+
+    // Überschreibe Standard-Button im Dark Theme
+    button, .button {
+      @extend %button-primary-dark;
+    }
+
+    // Überschreibe Farb-Modifier im Dark Theme
+    .button--primary { @extend %button-primary-dark; }
+    .button--secondary { @extend %button-secondary-dark; }
+    .button--danger { @extend %button-danger-dark; }
+    .button--neutral { @extend %button-neutral-dark; }
+
+    // Überschreibe Action-Buttons/-Links im Dark Theme
+    li.dish-card,
+    li.menu-card {
+      .dish-actions, .menu-actions {
+        a, button {
+          @extend %button-primary-dark; // Standard für Aktionen im Dark Theme
+
+          &.action--delete { @extend %button-danger-dark; }
+          &.action--secondary { @extend %button-secondary-dark; }
+          &.action--neutral { @extend %button-neutral-dark; }
+        }
+      }
+    }
+
+    %button-base {
+      background-color: $color-dark-neutral-bg;
+      color: $color-dark-text;
+      border: 1px solid $color-dark-neutral-border;
+
+      &:hover {
+        border-color: $color-dark-primary;
+        // background-color: darken($color-dark-neutral-bg, 3%);
+      }
+    }
+
+    .input-widget {
+      border: 1px solid $color-dark-neutral-border;
+      background-color: $color-dark-neutral-bg;
+      color: $color-dark-text;
+
+      input { /* Stile bleiben gleich */
+      }
+
+      label {
+        color: $color-dark-text-muted;
+      }
+    }
+
+    nav {
+      ul {
+        li {
+          a {
+            background-color: $color-dark-neutral-bg;
+            color: $color-dark-text;
+
+            &.active {
+              border-bottom-color: $color-dark-primary;
+            }
+
+            &:hover {
+              background-color: darken($color-dark-neutral-bg, 3%);
+              color: $color-dark-primary;
+            }
+          }
+        }
+      }
+    }
+
+    // Karten im Dark Theme anpassen
+    li.dish-card,
+    li.menu-card {
+      background-color: $color-dark-card-bg; // *** NEU: Basis ist Dunkelgrau ***
+      border: 1px solid $color-dark-card-border; // *** NEU: Passender Rand ***
+      box-shadow: 2px 2px 5px -1px rgba(black, 0.3); // *** NEU: Angepasster Schatten ***
+
+      // Typ/Preis Kreise - Dunkle Hintergründe brauchen hellen Text
+      .dish-type, .dish-price,
+      .menu-type, .menu-price {
+        color: $color-dark-neutral-bg; // *** NEU: Heller Text ***
+      }
+
+      .dish-actions, .menu-actions {
+        border-top-color: $color-dark-card-border; // *** NEU: Passender Rand ***
+      }
+    }
+
+    // Spezifische Kartenhintergründe für Dark Theme (NEUE dunklere Farben)
+    li.dish-card {
+      &.dish-card__main {
+        background-color: $color-dark-card-main-bg; // Dunkleres Orange/Braun
+        // Kreise: Hellerer Ton für Kontrast
+        .dish-type, .dish-price { background-color: lighten($color-dark-card-main-bg, 10%); }
+      }
+      &.dish-card__side {
+        background-color: $color-dark-card-side-bg; // Dunkleres Grün
+        .dish-type, .dish-price { background-color: lighten($color-dark-card-side-bg, 10%); }
+      }
+      &.dish-card__beverage {
+        background-color: $color-dark-card-beverage-bg; // Dunkleres Gold/Gelb
+        .dish-type, .dish-price { background-color: lighten($color-dark-card-beverage-bg, 10%); }
+      }
+    }
+    li.menu-card {
+      background-color: $color-dark-card-menu-bg; // Dunkleres Blau
+      // Kreise: Hellerer Ton für Kontrast
+      .menu-type, .menu-price { background-color: lighten($color-dark-card-menu-bg, 10%); }
+    }
+
+    // ... weitere Dark-Theme Anpassungen für .react-select etc. ...
+
+    form .select__menu {
+      box-shadow: 0 0 0 1px $color-dark-neutral-border;
+      background-color: $color-dark-bg; // Haupt-Hintergrund
+      color: $color-dark-text;
+    }
+  }
+}

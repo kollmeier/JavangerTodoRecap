@@ -1,0 +1,293 @@
+@import 'style/settings';
+@import './style/dot.scss';
+@import './style/forms.scss';
+@import './style/buttons.scss';
+@import './style/nav.scss';
+
+
+
+
+// --- Applying Placeholders & Specific Styles ---
+
+ul.dish-list,
+ul.menu-list {
+  @extend %entity-list-base;
+  > * {
+    @extend %entity-card-base;
+  }
+}
+
+li.dish-card,
+li.menu-card {
+  line-height: 1.5;
+
+  .dish-type, .dish-price,
+  .menu-type, .menu-price {
+    @extend %dot-base;
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    // *** NEU: Textfarbe für Kreise auf hellen Hintergründen ***
+    color: $color-light-text; // Dunkler Text
+  }
+
+  .dish-actions, .menu-actions {
+    @extend %entity-card-actions-base;
+    border-top-color: $color-light-card-border; // Heller Rand
+    // Wende Chip-Style auf Links UND Buttons innerhalb der Actions an
+    a, button {
+      @extend %button-base; // Basis-Chip-Style
+      @extend %button-primary; // Standardfarbe für Aktionen (kann überschrieben werden)
+      // Optional: Spezifisches Padding nur für Action-Chips, falls nötig
+      // padding: $padding-button-action-vertical $padding-button-horizontal;
+
+      // Beispiel: Spezifische Farbe für einen Löschen-Link/Button
+      &.action--delete { // Füge diese Klasse im HTML/TSX hinzu
+        @extend %button-danger;
+      }
+      // Beispiel: Sekundäre Aktion
+      &.action--secondary { // Füge diese Klasse im HTML/TSX hinzu
+        @extend %button-secondary;
+      }
+      // Beispiel: Neutrale Aktion
+      &.action--neutral { // Füge diese Klasse im HTML/TSX hinzu
+        @extend %button-neutral;
+      }
+    }
+  }
+
+  .dish-type, .menu-type {
+    height: $size-card-type-circle;
+    width: $size-card-type-circle;
+    padding: $padding-card-type-circle;
+    margin-top: $position-card-type-circle - $padding-card-type-circle * 2 - $gap-card-inner * 3;
+    margin-left: $position-card-type-circle  - $padding-card-type-circle * 2 - $gap-card-inner * 3;
+  }
+
+  .dish-price, .menu-price {
+    height: $size-card-price-circle;
+    width: $size-card-price-circle;
+    margin-bottom: $position-card-price-circle;
+    margin-right: $position-card-price-circle;
+    font-size: 110%;
+    font-weight: bold;
+    flex-direction: column;
+    > del {
+      font-size: 70%;
+      line-height: 0.7;
+      font-style: italic;
+    }
+  }
+
+  > div { // Style the direct child div
+    @extend %entity-card-inner-div;
+  }
+}
+
+// Dish Specific Styles
+li.dish-card {
+  // Colors - Verwenden die NEUEN hellen Variablen
+  &.dish-card__main {
+    background-color: $color-light-card-one-bg; // Sehr helles Orange
+    // Kreise: Etwas dunklerer Ton der Kartenfarbe für Kontrast
+    .dish-type, .dish-price { background-color: darken($color-light-card-one-bg, 5%); }
+  }
+  &.dish-card__side {
+    background-color: $color-light-card-two-bg; // Sehr helles Grün
+    .dish-type, .dish-price { background-color: darken($color-light-card-two-bg, 5%); }
+  }
+  &.dish-card__beverage {
+    background-color: $color-light-card-three-bg; // Sehr helles Gelb
+    .dish-type, .dish-price { background-color: darken($color-light-card-three-bg, 5%); }
+  }
+
+  .dish-type {
+    grid-column-start: first;
+    grid-column-end: span 1;
+    grid-row-start: head;
+    grid-row-end: span 2;
+    place-self: end;
+  }
+
+  .dish-price {
+    grid-column-start: last;
+    grid-column-end: span 1;
+    grid-row-start: foot;
+    grid-row-end: span 1;
+    place-self: start;
+  }
+
+  .dish-name {
+    grid-column-start: middle;
+    grid-column-end: span 3;
+    grid-row-start: head;
+    grid-row-end: span 2;
+    place-self: end start;
+    font-weight: bold;
+    font-size: 110%;
+  }
+
+  .dish-info {
+    grid-column-start: first;
+    grid-column-end: span 2;
+    grid-row-start: auto;
+    grid-row-end: span 1;
+    text-wrap: wrap;
+  }
+
+  .dish-image {
+    grid-column-start: side;
+    grid-column-end: span 2;
+    grid-row-start: content;
+    grid-row-end: span 1;
+    width: auto;
+    place-self: start end;
+    img {
+      width: 100%;
+      max-height: 4.4rem;
+      filter: drop-shadow(3px 5px 3px rgba(0,0,0,0.6));
+    }
+  }
+
+  .dish-actions {
+    grid-column-start: first;
+    grid-column-end: span 3;
+    grid-row-start: foot;
+    grid-row-end: span 1;
+    place-self: end start;
+  }
+}
+
+// Menu Specific Styles
+li.menu-card {
+  // Colors
+  background-color: $color-light-card-menu-bg; // Sehr helles Blau
+  .menu-type, .menu-price { background-color: darken($color-light-card-menu-bg, 5%); }
+
+  // Apply base detail styles to relevant menu elements
+  // Adjust class names (.menu-inhabitants etc.) as needed for your HTML
+  .menu-name,
+  .menu-info,
+  .menu-main-dish,
+  .menu-side-dish,
+  .menu-beverage {
+    @extend %entity-card-detail-base;
+  }
+
+  .menu-type {
+    grid-column-start: first;
+    grid-column-end: span 1;
+    grid-row-start: head;
+    grid-row-end: span 2;
+    place-self: end;
+  }
+
+  .menu-price {
+    grid-column-start: last;
+    grid-column-end: span 1;
+    grid-row-start: foot;
+    grid-row-end: span 1;
+    place-self: start;
+  }
+
+  .menu-name {
+    grid-column-start: middle;
+    grid-column-end: span 3;
+    grid-row-start: head;
+    grid-row-end: span 2;
+    place-self: end start;
+    font-weight: bold;
+    font-size: 110%;
+  }
+
+  .menu-info {
+    grid-column-start: first;
+    grid-column-end: span 2;
+    grid-row-start: content;
+    grid-row-end: span 1;
+    text-wrap: wrap;
+    line-height: 1.2;
+  }
+
+  .menu-images {
+    grid-column-start: side;
+    grid-column-end: span 2;
+    grid-row-start: content;
+    grid-row-end: span 2;
+    width: auto;
+    place-self: start end;
+    position: relative;
+    filter: drop-shadow(3px 5px 3px rgba(0,0,0,0.6));
+    img {
+      width: 100%;
+    }
+    .menu-image__main {
+      position: absolute;
+      margin-right: 5%;
+      bottom: 20%;
+      z-index: 1;
+    }
+    .menu-image__side {
+      position: absolute;
+      margin-top: 30%;
+      left: 0;
+      margin-left: 25%;
+      margin-right: -10%;
+      z-index: 2;
+      display: block;
+    }
+    .menu-image__beverage {
+      margin-top: -40%;
+      margin-left: 30%;
+      margin-right: -40%;
+      display: block;
+      z-index: 0;
+    }
+  }
+
+  .menu-actions {
+    grid-column-start: first;
+    grid-column-end: span 3;
+    grid-row-start: foot;
+    grid-row-end: span 1;
+    place-self: end start;
+  }
+
+  .menu-dishes {
+    grid-column-start: first;
+    grid-column-end: span 2;
+    grid-row-start: auto;
+    grid-row-end: span 1;
+    text-wrap: wrap;
+    > * {
+      display: inline;
+    }
+  }
+
+  .menu-main-dish, .menu-side-dish {
+    &::after {
+      content: ", ";
+    }
+
+  }
+
+  .menu-name {
+    font-weight: bold;
+    font-size: 110%;
+  }
+}
+
+
+// --- Centered Utility ---
+%centered {
+  margin: auto;
+  width: 50%;
+  padding: 10px; // Variable? $padding-centered: 10px;
+  text-align: center;
+  display: block;
+}
+
+.centered {
+  @extend %centered;
+}

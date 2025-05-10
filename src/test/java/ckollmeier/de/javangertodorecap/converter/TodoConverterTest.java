@@ -15,7 +15,7 @@ class TodoConverterTest {
         String description = "Test Todo";
 
         TodoInputDTO todoInputDTO = new TodoInputDTO(statusString, description);
-        Todo expectedDTO = new Todo(null, Status.valueOf(statusString), description);
+        Todo expectedDTO = new Todo(null, Status.valueOf(statusString), description, null);
 
         // When
         Todo actualDTO = TodoConverter.convert(todoInputDTO);

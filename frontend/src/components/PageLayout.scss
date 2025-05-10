@@ -1,0 +1,106 @@
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  .pl-header, .pl-footer {
+    background: #292c36;
+    color: #fff;
+    padding: 1rem 2rem;
+  }
+
+  .pl-nav {
+    background: #ececec;
+    padding: 0.5rem 2rem;
+
+    ul {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        a, button {
+          color: #292c36;
+          background: none;
+          border: none;
+          font: inherit;
+          cursor: pointer;
+          text-decoration: none;
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+
+          &.active {
+            color: #fff;
+            background: #292c36;
+            border-bottom: 3px solid adjust-color(#292c36, $lightness: 30%);
+          }
+
+          &:hover {
+            background: #dbdbdb;
+          }
+        }
+      }
+    }
+
+    .pl-subnav {
+      margin-top: 0.25rem;
+      gap: 0.5rem;
+      font-size: 0.94rem;
+    }
+  }
+
+  .pl-content-area {
+    flex: 1 1 0;
+    display: flex;
+    background: #f7f7f9;
+
+    .pl-sidebar {
+      min-width: 220px;
+      max-width: 320px;
+      background: #fbfbfc;
+      border-right: 1px solid #e2e2e7;
+      padding: 1.5rem 1rem 1.5rem 2.5rem;
+    }
+
+    .pl-main {
+      flex: 1 1 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+
+      .pl-page-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        margin-bottom: 1.25rem;
+      }
+
+      .pl-content {
+        flex: 1 1 0;
+        background: #fff;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(80,90,110,0.04);
+      }
+    }
+  }
+
+  @media (max-width: 900px) {
+    .pl-content-area {
+      flex-direction: column;
+
+      .pl-sidebar {
+        min-width: 0;
+        max-width: none;
+        border-right: none;
+        border-bottom: 1px solid #e2e2e7;
+        padding: 1rem 1.5rem;
+      }
+      .pl-main {
+        padding: 1rem;
+      }
+    }
+  }
+}

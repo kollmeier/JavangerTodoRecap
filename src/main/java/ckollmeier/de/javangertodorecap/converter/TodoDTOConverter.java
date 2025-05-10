@@ -4,6 +4,8 @@ import ckollmeier.de.javangertodorecap.dto.TodoDTO;
 import ckollmeier.de.javangertodorecap.entity.Todo;
 import lombok.NonNull;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -15,13 +17,15 @@ public final class TodoDTOConverter {
         throw new IllegalStateException("Utility class");
     }
 
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.systemDefault());
+
     /**
      * Konvertiert ein @{link Todo} in ein @{link TodoDTO}.
      * @param todo zu konvertierendes Todo
      * @return konvertiertes TodoDTO
      */
     public static TodoDTO convert(final @NonNull Todo todo) {
-        return new TodoDTO(todo.id(), todo.status().toString(), todo.description());
+        return new TodoDTO(todo.id(), todo.status().toString(), todo.description(), formatter.format(todo.createdAt()));
     }
 
     /**

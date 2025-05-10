@@ -1,0 +1,1 @@
+export type StatusType = 'open' | 'in_progress' | 'done';
