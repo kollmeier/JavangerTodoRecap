@@ -1,7 +1,9 @@
-import React, {ReactNode} from "react";
+import React, {ReactNode, useEffect, useState} from "react";
 import "./PageLayout.scss";
 import {NavItem} from "../hooks/usePageLayout.ts";
 import {NavLink} from "react-router-dom";
+import {Modal} from "./Modal.tsx";
+import {usePageLayoutContext} from "../context/PageLayoutContext.ts";
 
 export type PageLayoutProps = {
     header?: ReactNode;
@@ -11,13 +13,22 @@ export type PageLayoutProps = {
     subNav?: NavItem[];
     actions?: ReactNode;
     sidebar?: ReactNode;
+    modal?: ReactNode;
     children: ReactNode;
 };
 
 export const PageLayout: React.FC<PageLayoutProps> = (props) => {
-    const { header, subHeader, footer, mainNav, subNav, actions, sidebar, children } = props;
+    const { header, subHeader, footer, mainNav, subNav, actions, sidebar, children, modal } = props;
+    const { acceptModal, cancelModal, modalTitle, modalAcceptButtonLabel, modalMoreButtons } = usePageLayoutContext();
+
+    const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        setShowModal(!!modal);
+    }, [modal]);
 
     return (
+        <>
         <div className="page-layout">
             {header && <header className="pl-header">
                 {header}
@@ -58,6 +69,17 @@ export const PageLayout: React.FC<PageLayoutProps> = (props) => {
             </div>
             {footer && <footer className="pl-footer">{footer}</footer>}
         </div>
+        {(<Modal
+            isOpen={showModal}
+            onClose={cancelModal}
+            onAccept={acceptModal}
+            title={modalTitle}
+            acceptButtonLabel={modalAcceptButtonLabel}
+            moreButtons={modalMoreButtons}
+        >
+            {modal}
+        </Modal>)}
+        </>
     )
 };
 

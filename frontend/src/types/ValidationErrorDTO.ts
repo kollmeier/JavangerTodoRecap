@@ -29,19 +29,21 @@ export function isSpellingValidationDTO(obj: unknown): obj is SpellingValidation
 }
 
 export type SpellingValidationItemDTO = {
-    textPassageIndex: number;
+    textPassagePosition: number;
     originalTextPassage: string;
     correctedTextPassage: string;
     fullText: string;
     fullCorrectedText: string;
+    description: string;
 };
 
 export function isSpellingValidationItemDTO(obj: unknown): obj is SpellingValidationItemDTO {
     if (typeof obj !== 'object' || obj === null) return false;
     const o = obj as Record<string, unknown>;
-    return typeof o.textPassageIndex === 'number' &&
+    return typeof o.textPassagePosition === 'number' &&
         typeof o.originalTextPassage === 'string' &&
         typeof o.correctedTextPassage === 'string' &&
         typeof o.fullText === 'string' &&
-        typeof o.fullCorrectedText === 'string';
+        typeof o.fullCorrectedText === 'string' &&
+        typeof o.description === 'string';
 }

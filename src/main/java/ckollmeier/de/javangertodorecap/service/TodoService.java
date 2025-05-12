@@ -53,16 +53,18 @@ public class TodoService {
      * @param todoInputDTO zu erstellendes Todo
      * @return erstelltes Todo als @{link TodoDTO}
      */
-    public TodoDTO addTodo(final @NonNull TodoInputDTO todoInputDTO) {
+    public TodoDTO addTodo(final @NonNull TodoInputDTO todoInputDTO, final @NonNull Boolean force) {
         Todo todo = TodoConverter.convert(todoInputDTO).withId(IDGenerator.generateID());
-        try {
-            SpellingValidationDTO spellingValidationDTO = chatGPTService.validateSpelling(todo.description());
-            if (spellingValidationDTO != null && spellingValidationDTO.errorCount() > 0) {
-                throw new SpellingValidationException("Spelling validation failed", spellingValidationDTO);
-            }
-        } catch (ChatGPTOpenAIResultException e) {
-            // ignore
-        } // Let ChatGPTOpenAIRequestException pass through
+        if (!force) {
+            try {
+                SpellingValidationDTO spellingValidationDTO = chatGPTService.validateSpelling(todo.description());
+                if (spellingValidationDTO != null && spellingValidationDTO.errorCount() > 0) {
+                    throw new SpellingValidationException("Spelling validation failed", spellingValidationDTO);
+                }
+            } catch (ChatGPTOpenAIResultException e) {
+                // ignore
+            } // Let ChatGPTOpenAIRequestException pass through
+        }
         todoRepository.save(todo);
         historyService.addEntry(Action.CREATE, Entity.TODO, todo.id(), todo, null);
         return TodoDTOConverter.convert(todo);

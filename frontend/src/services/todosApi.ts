@@ -31,12 +31,13 @@ export const todosApi = {
         throw "Ungültige Antwort beim Laden der Todos";
     },
 
-    async add(todo: TodoInputDTO) {
+    async add(todo: TodoInputDTO, force?: boolean) {
         this.cancelableAddTodoRef?.abort();
         this.cancelableAddTodoRef = new AbortController();
 
         try {
             const response = await axios.post(this.baseUrl, todo, {
+                params: {force},
                 signal: this.cancelableAddTodoRef.signal});
             if (isTodoDTO(response.data)) {
                 return response.data;

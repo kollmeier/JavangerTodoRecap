@@ -11,7 +11,8 @@
   transition: filter 0.2s ease-out; // Für Hover-Effekt
 
   &:focus,
-  &:focus-visible {
+  &:focus-visible,
+  &.active {
     // Keep vendor prefix for focus ring color for now
     outline: 4px auto -webkit-focus-ring-color;
     outline-offset: 2px; // Etwas Abstand für den Fokusring

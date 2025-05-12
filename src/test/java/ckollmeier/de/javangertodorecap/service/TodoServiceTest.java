@@ -87,7 +87,7 @@ class TodoServiceTest {
         Mockito.when(todoRepository.save(Mockito.any(Todo.class))).thenReturn(todo);
 
         // When
-        TodoDTO actualDTO = todoService.addTodo(todoInputDTO);
+        TodoDTO actualDTO = todoService.addTodo(todoInputDTO, false);
 
         // Then
         assertEquals(expectedDTO.status(), actualDTO.status());
@@ -103,7 +103,7 @@ class TodoServiceTest {
         TodoInputDTO todoInputDTO = null;
 
         // When & Then
-        assertThrows(NullPointerException.class, () -> todoService.addTodo(todoInputDTO));
+        assertThrows(NullPointerException.class, () -> todoService.addTodo(todoInputDTO, false));
     }
 
     @Test

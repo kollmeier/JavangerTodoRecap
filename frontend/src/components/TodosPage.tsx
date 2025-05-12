@@ -11,14 +11,15 @@ import {toast} from "react-toastify";
 import Actions from "./Actions.tsx";
 
 const TodosPage = () => {
-    const {todos, saveTodo, updateTodo, removeTodo, loading, error, undo, redo} = useTodos();
+    const {todos, saveTodo, updateTodo, removeTodo, loading, error, undo, redo, clearError} = useTodos();
 
     const {filter} = useParams<{filter: StatusType}>();
 
     const {setActions, setSubHeader} = usePageLayoutContext();
 
-    const handleSubmit = async (_e: React.FormEvent<HTMLFormElement>, todoString: string) => {
-        return toast.promise(saveTodo({status: 'OPEN', description: todoString}),
+    const handleSubmit = async (_e: React.FormEvent<HTMLFormElement>, todoString: string, force?: boolean) => {
+        return toast.promise(
+            saveTodo({status: 'OPEN', description: todoString}, force),
             {
                 pending: 'Speichere To-Do...',
                 success: 'To-Do erfolgreich gespeichert',
@@ -57,10 +58,11 @@ const TodosPage = () => {
 
     useEffect(() => {
         setSubHeader(filter ? todoStatusDisplayConverter.longDisplayString(filter) : 'Alle To-Dos');
-        setActions(filter ? undefined : (<Actions undo={undo} redo={redo} disabled={loading} error={error} onSubmit={handleSubmit} />));
+        setActions(filter ? undefined : (<Actions undo={undo} redo={redo} disabled={loading} error={error} clearError={clearError} onSubmit={handleSubmit} />));
     }, [filter, error, loading]);
 
     return (
+    <>
         <div className="todos-page">
             {filter ? (
                 <TodosList todos={todos.filter(todo => todo.status.toLowerCase() === filter)} updateTodo={filter === 'open' || filter === 'in_progress' ? handleUpdate : undefined} deleteTodo={filter === 'open' || filter === 'in_progress' ? undefined : handleDelete}/>
@@ -81,6 +83,7 @@ const TodosPage = () => {
             </>
             )}
         </div>
+    </>
 )};
 
 export default TodosPage;

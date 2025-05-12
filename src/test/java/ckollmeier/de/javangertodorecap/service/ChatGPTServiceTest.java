@@ -115,7 +115,7 @@ class ChatGPTServiceTest {
         assertThat(spellingValidationDTO.errorCount()).isEqualTo(1);
         assertThat(spellingValidationDTO.errors().getFirst().originalTextPassage()).isEqualTo("Tset Todo");
         assertThat(spellingValidationDTO.errors().getFirst().correctedTextPassage()).isEqualTo("Test Todo");
-        assertThat(spellingValidationDTO.errors().getFirst().textPassageIndex()).isEqualTo(0);
+        assertThat(spellingValidationDTO.errors().getFirst().textPassagePosition()).isEqualTo(0);
         assertThat(spellingValidationDTO.errors().getFirst().fullText()).isEqualTo("Tset Todo");
         assertThat(spellingValidationDTO.errors().getFirst().fullCorrectedText()).isEqualTo("Test Todo");
     }

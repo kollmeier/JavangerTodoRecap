@@ -52,10 +52,10 @@ export function useTodos() {
     const deleteTodo = (id: string) =>
         setState(prev => ({ ...prev, todos: prev.todos.filter(t => t.id !== id) }));
 
-    const save = (todo: TodoInputDTO) => {
+    const save = (todo: TodoInputDTO, force?: boolean) => {
         setLoading(true);
         setError(null);
-        return todosApi.add(todo)
+        return todosApi.add(todo, force)
             .then(addedTodo => addedTodo ? addTodo(addedTodo) : void 0)
             .catch(error => {
                 setErrorFromCaughtError(error);
@@ -132,6 +132,7 @@ export function useTodos() {
         undo: undo,
         redo: redo,
         loading: state.loading,
-        error: state.error
+        error: state.error,
+        clearError: () => setError(null)
     };
 }

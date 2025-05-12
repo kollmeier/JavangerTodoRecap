@@ -8,13 +8,14 @@ type Props = {
     error: string | null;
     onSubmit: (e: React.FormEvent<HTMLFormElement>, todoString: string) => Promise<void>;
     disabled?: boolean;
+    clearError?: () => void;
 }
 
-const Actions = ({undo, redo, error, onSubmit, disabled}: Props) => (
+const Actions = ({undo, redo, error, onSubmit, disabled, clearError}: Props) => (
     <>
         <ErrorDisplay error={error} />
         <UndoRedoActions undo={undo} redo={redo} />
-        <TodoInputForm onSubmit={onSubmit} disabled={disabled} />
+        <TodoInputForm onSubmit={onSubmit} disabled={disabled} clearError={clearError}/>
     </>
 );
 

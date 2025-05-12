@@ -1,0 +1,50 @@
+@import "../style/buttons";
+.correction {
+  background: #d1ffd1;
+  position: relative;
+}
+.validation-error {
+  text-decoration: underline wavy indianred;
+}
+.actions {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+}
+.correction:hover .actions {
+  display: inline-block;
+}
+
+.popover-content {
+  font-size: 90%;
+  background: white;
+  border: 1px solid #444;
+  border-radius: 8px;
+  box-shadow: 0 2px 18px rgba(0,0,0,0.08);
+  padding: 10px 18px;
+  z-index: 2000;
+  min-width: 200px;
+  button, a.button {
+    padding: 1px 4px;
+    &:focus {
+      outline: 1px dotted #45a;
+    }
+    &.active {
+      background: #45a;
+    }
+
+    &.button-accept {
+      color: lightgreen;
+    }
+
+    &.button-reject {
+      color: red;
+    }
+  }
+}
+
+.popover-trigger:focus {
+  outline: 1px dotted #45a;
+}
